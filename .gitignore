@@ -20,3 +20,7 @@ mono_crash.*.json
 
 .DS_Store
 project.godot
+.editorconfig
+.gitattributes
+icon.svg
+icon.svg.import

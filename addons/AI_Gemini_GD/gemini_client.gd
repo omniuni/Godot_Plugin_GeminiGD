@@ -2,7 +2,6 @@
 class_name GeminiClient
 extends Node
 
-# Updated signal to pass an Array instead of a Dictionary
 signal request_completed(response_content: Array)
 signal request_failed(error_message: String)
 
@@ -12,17 +11,18 @@ func _ready() -> void:
 	_http_request = HTTPRequest.new()
 	add_child(_http_request)
 	_http_request.request_completed.connect(_on_request_completed)
+	pass
 
 var _last_request_params = []
 
-func send_prompt(prompt_text: String, scripts: Array = [], scenes: Array = [], active_script: Script = null, active_scene: Node = null, history_text: String = "") -> void:
-	_last_request_params = [prompt_text, scripts, scenes, active_script, active_scene, history_text]
-	var api_key = ProjectSettings.get_setting("gemini_gd/api_key")
+func send_prompt(prompt_text: String, scripts: Array = [], scenes: Array = [], active_script: Script = null, active_scene: Node = null, history_array: Array = []) -> void:
+	_last_request_params = [prompt_text, scripts, scenes, active_script, active_scene, history_array]
+	var api_key = ProjectSettings.get_setting("gemini_gd/gemini_configuration/api_key")
 	if not api_key is String or api_key.is_empty():
 		request_failed.emit("API Key is missing.")
 		return
 		
-	print("Sending. Total scripts: " + str(scripts.size()) + ", total scenes: " + str(scenes.size()) + "...")
+	print("Sending: Total scripts: " + str(scripts.size()) + ", total scenes: " + str(scenes.size()) + " | Active Script? "+str(active_script)+", Active Scene? "+str(active_scene)+" | History? "+str(history_array.size()))
 	
 	var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:streamGenerateContent?key=" + api_key
 	var headers = ["Content-Type: application/json"]
@@ -37,11 +37,15 @@ func send_prompt(prompt_text: String, scripts: Array = [], scenes: Array = [], a
 				This is a code assistant for Godot Engine, the Godot Game Engine.
 				This is for Godot "+engine_version+". Check that the methods used are for version "+engine_version+"
 				
+				The response_title is a very short summary of the topic of the response.
+				
 				Respond to the prompt returning content as an array of objects,
 				with each object having a type and value.
 				This is the only way to provide formatting.
 				Do not use Markdown, HTML, or any other formatting.
 				The available types are: header, text, list_item_bullet, list_item_numeric, code, code_edit
+				
+				The active script and active scene are the most likely subject if no specific context is specified.
 				
 				Code must be formatted with whitespace as per the original file.
 				When being asked for code changes, be thorough, making multiple changes in different files or different locations of the file if necessary.
@@ -119,21 +123,28 @@ func send_prompt(prompt_text: String, scripts: Array = [], scenes: Array = [], a
 			var file = FileAccess.open(scene_path, FileAccess.READ)
 			scene_file_contents = file.get_as_text()
 		user_parts.append({"text": "Scene Resource: " + scene_path + "\nContents:\n" + scene_file_contents })
-	
-	# Append history context if available
-	if not history_text.is_empty():
-		user_parts.append({"text": "Conversation History:\n" + history_text + "\n---\n"})
 
 	# Append the actual user prompt as the final part
 	user_parts.append({"text": prompt_text})
 	
+	var contents_array = []
+	
+	# Add history context to the contents_array if available
+	for chat_entry in history_array:
+		if chat_entry.has("user") and not chat_entry["user"].is_empty():
+			contents_array.append({"role": "user", "parts": [{"text": chat_entry["user"]}]})
+		if chat_entry.has("assistant") and not chat_entry["assistant"].is_empty():
+			contents_array.append({"role": "model", "parts": [{"text": chat_entry["assistant"]}]})
+	
+	contents_array.append(
+		{
+			"role": "user",
+			"parts": user_parts
+		}
+	)
+	
 	var payload = {
-		"contents": [
-			{
-				"role": "user",
-				"parts": user_parts
-			}
-		],
+		"contents": contents_array,
 		"generationConfig": {
 			"thinkingConfig": {"thinkingLevel": "HIGH"},
 			"responseMimeType": "application/json",
@@ -144,7 +155,6 @@ func send_prompt(prompt_text: String, scripts: Array = [], scenes: Array = [], a
 	
 	var json_body = JSON.stringify(payload)
 	
-	print("Sending...")
 	var response_code = _http_request.request(url, headers, HTTPClient.METHOD_POST, json_body)
 	
 	if response_code != OK:
@@ -185,9 +195,10 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 			var structured_data = JSON.parse_string(full_text)
 			if typeof(structured_data) == TYPE_DICTIONARY and structured_data.has("response_content"):
 				# Emit only the parsed array
-				request_completed.emit(structured_data["response_content"])
+				request_completed.emit(structured_data['response_title'], structured_data["response_content"])
 				return
 		
 		request_failed.emit("Failed to parse expected JSON schema from response.")
 	else:
 		request_failed.emit("API request failed. HTTP Code: " + str(response_code))
+	pass

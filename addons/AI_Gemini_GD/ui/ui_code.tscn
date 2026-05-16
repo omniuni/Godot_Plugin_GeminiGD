@@ -2,6 +2,10 @@
 
 [ext_resource type="Script" uid="uid://dwror6btkm3fi" path="res://addons/AI_Gemini_GD/ui/ui_code.gd" id="1_60g7f"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tut8f"]
+content_margin_bottom = 12.0
+draw_center = false
+
 [sub_resource type="GDScriptSyntaxHighlighter" id="GDScriptSyntaxHighlighter_60g7f"]
 
 [node name="UiCode" type="MarginContainer" unique_id=1971476957]
@@ -37,6 +41,11 @@ layout_mode = 2
 [node name="CodeEdit" type="CodeEdit" parent="VBoxContainer/MarginContainer" unique_id=1996433711]
 layout_mode = 2
 mouse_filter = 1
+theme_override_constants/outline_size = 1
+theme_override_styles/normal = SubResource("StyleBoxFlat_tut8f")
+theme_override_styles/focus = SubResource("StyleBoxFlat_tut8f")
+theme_override_styles/read_only = SubResource("StyleBoxFlat_tut8f")
+theme_override_styles/completion = SubResource("StyleBoxFlat_tut8f")
 editable = false
 context_menu_enabled = false
 emoji_menu_enabled = false

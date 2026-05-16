@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://1oqmlk2etgnj"]
+
+[ext_resource type="Script" uid="uid://6x8swdaow7cc" path="res://addons/AI_Gemini_GD/ui/ui_chat_element.gd" id="1_eymib"]
+[ext_resource type="PackedScene" uid="uid://boj1kh655gy4q" path="res://addons/AI_Gemini_GD/ui/ui_request.tscn" id="2_sikfg"]
+[ext_resource type="PackedScene" uid="uid://que67sxj3ls2" path="res://addons/AI_Gemini_GD/ui/ui_response.tscn" id="3_n5c3t"]
+
+[node name="UiChatElement" type="MarginContainer" unique_id=1838680544]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 59.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+script = ExtResource("1_eymib")
+
+[node name="FoldableContainer" type="FoldableContainer" parent="." unique_id=614081177]
+layout_mode = 2
+title = "Sending..."
+title_text_overrun_behavior = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="FoldableContainer" unique_id=118998113]
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="FoldableContainer/VBoxContainer" unique_id=2090493744]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+color = Color(1, 1, 1, 0.23529412)
+
+[node name="ColorRectD" type="ColorRect" parent="FoldableContainer/VBoxContainer" unique_id=2053877000]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+color = Color(0, 0, 0, 0.23529412)
+
+[node name="UiRequest" parent="FoldableContainer/VBoxContainer" unique_id=2134753189 instance=ExtResource("2_sikfg")]
+layout_mode = 2
+
+[node name="ColorRect2" type="ColorRect" parent="FoldableContainer/VBoxContainer" unique_id=629114351]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+color = Color(1, 1, 1, 0.23529412)
+
+[node name="ColorRectD2" type="ColorRect" parent="FoldableContainer/VBoxContainer" unique_id=240475690]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+color = Color(0, 0, 0, 0.23529412)
+
+[node name="UiResponse" parent="FoldableContainer/VBoxContainer" unique_id=1428097165 instance=ExtResource("3_n5c3t")]
+layout_mode = 2

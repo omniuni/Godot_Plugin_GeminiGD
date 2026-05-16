@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://b6e4pso6ad1ru" path="res://addons/AI_Gemini_GD/ui/tabs/ui_tab_chat.gd" id="1_hf5y0"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hf5y0"]
+
 [node name="UiTabChat" type="Control" unique_id=420249608]
 layout_mode = 3
 anchors_preset = 15
@@ -10,3 +12,93 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_hf5y0")
+
+[node name="VBoxTabChat" type="VBoxContainer" parent="." unique_id=868732929]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainerConversation" type="MarginContainer" parent="VBoxTabChat" unique_id=2078714908]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxTabChat/MarginContainerConversation" unique_id=732072789]
+layout_mode = 2
+scroll_hint_mode = 3
+
+[node name="VBoxConversation" type="VBoxContainer" parent="VBoxTabChat/MarginContainerConversation/ScrollContainer" unique_id=528596277]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 10
+
+[node name="LabelWelcome" type="Label" parent="VBoxTabChat/MarginContainerConversation/ScrollContainer/VBoxConversation" unique_id=1040743686]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+text = "
+Welcome to Gemini GD —
+Bringing Google Gemini to Godot
+
+ALPHA RELEASE!
+Updated: 2026/05/16
+https://github.com/omniuni/Godot_Plugin_GeminiGD
+
+Enter a prompt to get started.
+This works best if you have any scripts or scenes you want to reference open in the editor.
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="MarginContainerPrompt" type="MarginContainer" parent="VBoxTabChat" unique_id=1485751798]
+layout_mode = 2
+
+[node name="HBoxPrompt" type="HBoxContainer" parent="VBoxTabChat/MarginContainerPrompt" unique_id=100449689]
+layout_mode = 2
+
+[node name="TextEditPrompt" type="TextEdit" parent="VBoxTabChat/MarginContainerPrompt/HBoxPrompt" unique_id=1656056093]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Prompt"
+wrap_mode = 1
+scroll_fit_content_height = true
+
+[node name="ButtonSendPrompt" type="Button" parent="VBoxTabChat/MarginContainerPrompt/HBoxPrompt" unique_id=619634834]
+layout_mode = 2
+text = "Send"
+
+[node name="MarginContainerChatButtons" type="MarginContainer" parent="VBoxTabChat" unique_id=1111772763]
+layout_mode = 2
+
+[node name="HBoxChatButtons" type="HBoxContainer" parent="VBoxTabChat/MarginContainerChatButtons" unique_id=2117307402]
+layout_mode = 2
+
+[node name="ButtonClearChat" type="Button" parent="VBoxTabChat/MarginContainerChatButtons/HBoxChatButtons" unique_id=1292309434]
+layout_mode = 2
+text = "Clear Chat"
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxTabChat/MarginContainerChatButtons/HBoxChatButtons" unique_id=148213246]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_hf5y0")
+
+[node name="ProgressBarStatus" type="ProgressBar" parent="VBoxTabChat/MarginContainerChatButtons/HBoxChatButtons/PanelContainer" unique_id=1162937634]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+show_percentage = false
+
+[node name="Label" type="Label" parent="VBoxTabChat/MarginContainerChatButtons/HBoxChatButtons/PanelContainer" unique_id=1606876383]
+modulate = Color(1, 1, 1, 0.627451)
+layout_mode = 2
+size_flags_vertical = 1
+text = "Ready"
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[connection signal="text_changed" from="VBoxTabChat/MarginContainerPrompt/HBoxPrompt/TextEditPrompt" to="." method="_on_text_edit_prompt_text_changed"]
+[connection signal="pressed" from="VBoxTabChat/MarginContainerPrompt/HBoxPrompt/ButtonSendPrompt" to="." method="_on_button_send_prompt_pressed"]
+[connection signal="pressed" from="VBoxTabChat/MarginContainerChatButtons/HBoxChatButtons/ButtonClearChat" to="." method="_on_button_clear_chat_pressed"]

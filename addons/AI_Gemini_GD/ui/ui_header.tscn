@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://d3cwylvfrjukr" path="res://addons/AI_Gemini_GD/ui/ui_header.gd" id="1_ha3jg"]
 
 [node name="UiHeader" type="MarginContainer" unique_id=1971476957]
+custom_minimum_size = Vector2(0, 36)
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 23.0
@@ -16,6 +17,7 @@ custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "Header"
+vertical_alignment = 1
 autowrap_mode = 2
 
 [node name="ButtonCopy" type="Button" parent="." unique_id=829387011]
