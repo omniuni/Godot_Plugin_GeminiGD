@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://d0isc8i5jik8t"]
+
+[ext_resource type="Script" uid="uid://d3cwylvfrjukr" path="res://addons/AI_Gemini_GD/ui/ui_header.gd" id="1_ha3jg"]
+
+[node name="UiHeader" type="MarginContainer" unique_id=1971476957]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+size_flags_vertical = 3
+theme_override_constants/margin_bottom = 6
+script = ExtResource("1_ha3jg")
+
+[node name="Label" type="Label" parent="." unique_id=1284344799]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Header"
+autowrap_mode = 2
+
+[node name="ButtonCopy" type="Button" parent="." unique_id=829387011]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+mouse_filter = 1
+theme_override_font_sizes/font_size = 12
+text = "Copy"
+flat = true

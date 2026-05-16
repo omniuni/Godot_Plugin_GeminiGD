@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://lw6yq3cpvx6m"]
+
+[ext_resource type="Script" uid="uid://bk1e6wlgtqhda" path="res://addons/AI_Gemini_GD/ui/main/ggd_main.gd" id="1_telba"]
+
+[node name="GgdDockMain" type="Control" unique_id=1586183208]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_telba")
+
+[node name="TabContainer" type="TabContainer" parent="." unique_id=1878291205]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+current_tab = 0
+tab_0/title = "Chat"
+tab_1/title = "Context"
+tab_1/disabled = true
+tab_2/title = "Tuning"
+tab_2/disabled = true
+
+[node name="PanelChat" type="PanelContainer" parent="TabContainer" unique_id=525611810]
+layout_mode = 2
+metadata/_tab_index = 0
+metadata/_tab_name = "Chat"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/PanelChat" unique_id=1113230899]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="TabContainer/PanelChat/VBoxContainer" unique_id=566580239]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/PanelChat/VBoxContainer/ScrollContainer" unique_id=258733834]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LabelStatus" type="Label" parent="TabContainer/PanelChat/VBoxContainer" unique_id=748384450]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.47058824)
+theme_override_font_sizes/font_size = 12
+text = "Ready"
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/PanelChat/VBoxContainer" unique_id=543506787]
+layout_mode = 2
+
+[node name="TextEdit" type="TextEdit" parent="TabContainer/PanelChat/VBoxContainer/VBoxContainer" unique_id=1968515968]
+layout_mode = 2
+placeholder_text = "Prompt"
+wrap_mode = 1
+scroll_fit_content_height = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/PanelChat/VBoxContainer/VBoxContainer" unique_id=1454659063]
+layout_mode = 2
+
+[node name="ButtonClear" type="Button" parent="TabContainer/PanelChat/VBoxContainer/VBoxContainer/HBoxContainer" unique_id=1824899507]
+layout_mode = 2
+text = "Clear"
+
+[node name="ButtonSend" type="Button" parent="TabContainer/PanelChat/VBoxContainer/VBoxContainer/HBoxContainer" unique_id=1234073411]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Send"
+
+[node name="PanelContext" type="PanelContainer" parent="TabContainer" unique_id=1667810250]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+metadata/_tab_name = "Context"
+
+[node name="LabelOpenScript" type="Label" parent="TabContainer/PanelContext" unique_id=1021698808]
+layout_mode = 2
+text = "res://addons/AI_Gemini_GD/gemini_client.gd"
+
+[node name="PanelInstructions" type="PanelContainer" parent="TabContainer" unique_id=1562925997]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
+metadata/_tab_name = "Tuning"
+
+[connection signal="pressed" from="TabContainer/PanelChat/VBoxContainer/VBoxContainer/HBoxContainer/ButtonClear" to="." method="_on_button_clear_pressed"]
+[connection signal="pressed" from="TabContainer/PanelChat/VBoxContainer/VBoxContainer/HBoxContainer/ButtonSend" to="." method="_on_button_send_pressed"]

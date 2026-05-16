@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://b7jrg1aqf4nxk"]
+
+[ext_resource type="Script" uid="uid://b6e4pso6ad1ru" path="res://addons/AI_Gemini_GD/ui/tabs/ui_tab_chat.gd" id="1_hf5y0"]
+
+[node name="UiTabChat" type="Control" unique_id=420249608]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hf5y0")

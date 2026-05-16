@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://4s67cnt26kr3"]
+
+[ext_resource type="Script" uid="uid://dwror6btkm3fi" path="res://addons/AI_Gemini_GD/ui/ui_code.gd" id="1_60g7f"]
+
+[sub_resource type="GDScriptSyntaxHighlighter" id="GDScriptSyntaxHighlighter_60g7f"]
+
+[node name="UiCode" type="MarginContainer" unique_id=1971476957]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+size_flags_vertical = 3
+theme_override_constants/margin_bottom = 6
+script = ExtResource("1_60g7f")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=928622254]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=1194494822]
+layout_mode = 2
+alignment = 2
+
+[node name="LabelFile" type="Label" parent="VBoxContainer/HBoxContainer" unique_id=1026553919]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"HeaderMedium"
+text = "File"
+
+[node name="ButtonApply" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=367952159]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Apply"
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer" unique_id=26672242]
+layout_mode = 2
+
+[node name="CodeEdit" type="CodeEdit" parent="VBoxContainer/MarginContainer" unique_id=1996433711]
+layout_mode = 2
+mouse_filter = 1
+editable = false
+context_menu_enabled = false
+emoji_menu_enabled = false
+middle_mouse_paste_enabled = false
+scroll_fit_content_height = true
+syntax_highlighter = SubResource("GDScriptSyntaxHighlighter_60g7f")
+draw_tabs = true
+
+[node name="ButtonCopy" type="Button" parent="VBoxContainer/MarginContainer" unique_id=1464234281]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+mouse_filter = 1
+theme_override_font_sizes/font_size = 14
+text = "Copy"
+flat = true
+
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/ButtonApply" to="." method="_on_button_apply_pressed"]
+[connection signal="pressed" from="VBoxContainer/MarginContainer/ButtonCopy" to="." method="_on_button_copy_pressed"]
