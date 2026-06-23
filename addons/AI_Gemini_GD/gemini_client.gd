@@ -1,31 +1,21 @@
 @tool
 class_name GeminiClient
-extends Node
-
-signal request_completed(response_content: Array)
-signal request_failed(error_message: String)
-
-var _http_request: HTTPRequest
-
-func _ready() -> void:
-	_http_request = HTTPRequest.new()
-	add_child(_http_request)
-	_http_request.request_completed.connect(_on_request_completed)
-	pass
+extends GeminiClientBase
 
 var _last_request_params = []
 
 func send_prompt(prompt_text: String, scripts: Array = [], scenes: Array = [], active_script: Script = null, active_scene: Node = null, history_array: Array = []) -> void:
 	_last_request_params = [prompt_text, scripts, scenes, active_script, active_scene, history_array]
-	var api_key = ProjectSettings.get_setting("gemini_gd/gemini_configuration/api_key")
-	if not api_key is String or api_key.is_empty():
-		request_failed.emit("API Key is missing.")
-		return
+		
+	var api_key = get_key()
 		
 	print("Sending: Total scripts: " + str(scripts.size()) + ", total scenes: " + str(scenes.size()) + " | Active Script? "+str(active_script)+", Active Scene? "+str(active_scene)+" | History? "+str(history_array.size()))
 	
-	var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:streamGenerateContent?key=" + api_key
-	var headers = ["Content-Type: application/json"]
+	var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent"
+	var headers = [
+		"Content-Type: application/json",
+		"X-goog-api-key: "+api_key
+	]
 	
 	# The version of Godot Engine
 	var engine_version = Engine.get_version_info().string
@@ -57,6 +47,7 @@ func send_prompt(prompt_text: String, scripts: Array = [], scenes: Array = [], a
 				code_original_reference must contain at least two lines of existing code before and after the region that will be changed to ensure accurate matching.
 				Use multiple `code_edit` entries when different parts of the file should be replaced or added so the user has more control over what to apply.
 				If only a couple of lines need to change, show those as an independent `code_edit`
+				Include surrounding lines of code in `code_edit` and code_original_reference for context and to ensure correct replacement.
 				
 				Fix code formatting with whitespace and indentation that matches the original file.
 				
@@ -197,8 +188,11 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 				# Emit only the parsed array
 				request_completed.emit(structured_data['response_title'], structured_data["response_content"])
 				return
-		
-		request_failed.emit("Failed to parse expected JSON schema from response.")
+		var message = "Failed to parse expected JSON schema from response."
+		print(message)
+		request_failed.emit(message)
 	else:
-		request_failed.emit("API request failed. HTTP Code: " + str(response_code))
+		var message = "API request failed. HTTP Code: " + str(response_code)
+		print(message)
+		request_failed.emit(message)
 	pass

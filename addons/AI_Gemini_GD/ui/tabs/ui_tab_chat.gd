@@ -59,6 +59,10 @@ func _on_status_update(status_text: String, status_percent: int) -> void:
 		node_label_status.text = "Ready"
 		node_progress.value = 0
 	pass
+	
+func _on_thought_update(thought: String) -> void:
+	
+	pass
 
 func _on_button_clear_chat_pressed() -> void:
 	var first = true

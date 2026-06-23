@@ -6,7 +6,7 @@ class_name UiChatElement
 @onready var node_ui_request: UiRequest = $FoldableContainer/VBoxContainer/UiRequest
 @onready var node_ui_response: UiResponse = $FoldableContainer/VBoxContainer/UiResponse
 
-var gemini_client: GeminiClient
+var gemini_client_checks: GeminiClientChecks
 
 signal signal_status
 
@@ -17,16 +17,13 @@ var _status_percent: int = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	gemini_client = GeminiClient.new()
-	gemini_client.request_completed.connect(_on_gemini_success)
-	gemini_client.request_failed.connect(_on_gemini_error)
-	add_child(gemini_client)
+	gemini_client_checks = GeminiClientChecks.new()
+	gemini_client_checks.request_completed.connect(_on_g_checks_success)
+	gemini_client_checks.request_failed.connect(_on_g_checks_error)
+	gemini_client_checks.request_progress.connect(_on_g_checks_progress)
+	add_child(gemini_client_checks)
 	_on_status_changed()
 	pass # Replace with function body.
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
 	
 func _on_status_changed():
 	signal_status.emit(_status_word, _status_percent)
@@ -36,10 +33,43 @@ func set_prompt(prompt: String):
 	if not prompt.strip_edges().is_empty():
 		_prompt = prompt
 		node_foldable_container.title = "..."
-	_send_request()
+	#_send_request()
+	_send_checks()
+	pass
+
+func _on_g_checks_error():
+	
+	pass
+	
+func _on_g_checks_success(string: String):
+	
+	pass
+	
+func _on_g_checks_progress(string: String):
+	
+	pass
+	
+func _send_checks():
+	print("_send_checks()")
+	gemini_client_checks.prepare()
+	gemini_client_checks.set_query(_prompt)
+	gemini_client_checks.send()
 	pass
 
 func _send_request():
+	
+	pass
+
+
+
+
+
+
+
+
+
+
+func _send_request_old():
 	node_ui_request.set_request(_prompt)
 	EditorInterface.save_all_scenes()
 	
@@ -64,7 +94,7 @@ func _send_request():
 		var parent_chat: UiTabChat = parent
 		var history = parent_chat.get_conversation_history()
 		print("Got history")
-		gemini_client.send_prompt(_prompt, open_scripts, open_scenes, active_script, active_scene, history)
+		#gemini_client.send_prompt(_prompt, open_scripts, open_scenes, active_script, active_scene, history)
 	else:
 		_status_word = "Error"
 		_status_percent = 0
