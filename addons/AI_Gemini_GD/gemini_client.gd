@@ -4,6 +4,18 @@ extends GeminiClientBase
 
 var _last_request_params = []
 
+func prepare():
+	pass
+	
+func _get_system_prompt():
+	pass
+	
+func _get_schema():
+	pass
+	
+func _get_history_array():
+	pass
+
 func send_prompt(prompt_text: String, scripts: Array = [], scenes: Array = [], active_script: Script = null, active_scene: Node = null, history_array: Array = []) -> void:
 	_last_request_params = [prompt_text, scripts, scenes, active_script, active_scene, history_array]
 		

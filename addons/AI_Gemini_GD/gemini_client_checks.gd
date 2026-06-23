@@ -1,8 +1,15 @@
 extends GeminiClientBase
 class_name GeminiClientChecks
 
+var _current_file = ""
+var _current_content = ""
+
 func prepare() -> void:
-	
+	EditorInterface.save_all_scenes()
+	var instance_script_editor: ScriptEditor = EditorInterface.get_script_editor()
+	var active_script = instance_script_editor.get_current_script()
+	_current_file = active_script.resource_path
+	_current_content = active_script.source_code
 	pass
 	
 func _get_system_prompt():
@@ -18,6 +25,8 @@ func _get_system_prompt():
 	If it appears that the query or prompt is referring specifically to a file or scene that is open and active,
 	then `query_requires_active_files` is `true` and all active files will be provided as context.
 	
+	If only the one active file is required, and no other open or active files, `query_requires_only_current` is true.
+	
 	`query_requires_file_scan` is true when the query may require general project context, not just what is open.
 	If `query_requires_file_scan` is true, a list of `file_scan_search_terms` must be returned.
 	
@@ -32,6 +41,7 @@ func _get_schema():
 		"type": "object",
 		"properties": {
 			"query_requires_context": {"type": "boolean"},
+			"query_requires_only_current": {"type": "boolean"},
 			"query_requires_active_files": {"type": "boolean"},
 			"query_requires_file_scan": {"type": "boolean"},
 			"file_scan_search_terms": {
@@ -45,4 +55,9 @@ func _get_schema():
 	}
 	
 func _get_history_array():
-	return []
+	var history = []
+	if not _current_file.is_empty():
+		history.append({
+			"user": "Active Script Resource: " + _current_file + "\nContents:\n" + _current_content + "\n"
+		})
+	return history

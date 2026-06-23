@@ -23,7 +23,10 @@ func set_query(query: String):
 	_query = query
 	pass
 
+#aido: add the history array
 func send():
+	prepare()
+	
 	var headers = [
 		"Content-Type: application/json",
 		"X-goog-api-key: "+get_key()
@@ -37,18 +40,20 @@ func send():
 		]
 	}
 	
-	var user_parts = []
-	
 	var contents_array = []
-
-	user_parts.append({"text": _query})
 	
-	contents_array.append(
-		{
-			"role": "user",
-			"parts": user_parts
-		}
-	)
+	var history = _get_history_array()
+	for chat_entry in history:
+		if chat_entry.has("user") and not chat_entry["user"].is_empty():
+			contents_array.append({"role": "user", "parts": [{"text": chat_entry["user"]}]})
+		if chat_entry.has("assistant") and not chat_entry["assistant"].is_empty():
+			contents_array.append({"role": "model", "parts": [{"text": chat_entry["assistant"]}]})
+			
+	var user_parts = [{"text": _query}]
+	contents_array.append({
+		"role": "user",
+		"parts": user_parts
+	})
 	
 	var payload = {
 		"contents": contents_array,

@@ -1,7 +1,60 @@
 extends GeminiClientBase
+class_name GeminiClientQuery
 
-func prepare() -> void:
+var _prepare_context: bool = false
+var _prepare_only_current: bool = false
+var _prepare_active_files: bool = false
+var _prepare_scan: bool = false
+var _prepare_scan_terms: Array = []
+var _history: Array = []
+
+func configure(context: bool, current: bool, active: bool, scan: bool, terms: Array):
+	_prepare_context = context
+	_prepare_only_current = current
+	_prepare_active_files = active
+	_prepare_scan = scan
+	_prepare_scan_terms = terms
+	pass
 	
+func set_history(history: Array):
+	print('got history!')
+	_history = history
+	print(str(history))
+	pass
+
+#AIDO: Finish migrating from gemini_client.gd
+func prepare() -> void:
+	EditorInterface.save_all_scenes()
+	
+	#AIDO: Construct the parts array for the user message
+	
+	#AIDO: if _prepare_context is false, done preparing.
+	
+	#AIDO: if _prepare_only_current is true, get the active script, and only add that and return
+	
+	#AIDO: if _prepare_active_files is true, get all the active files and scenes, and add them
+	
+	#AIDO: if _prepare_scan is true, get a list of ALL .tscn, .cfg, .gd, .json, .txt, and image files in the project directory
+	# unless a file has already been added in _prepare_active_files, check the file name, location, and content (for text files) to see if it contains any of the _prepare_scan_terms
+	# if the file matches the scan terms, include the file and its content as a user message
+	
+	#AIDO: cache this array of user parts
+	
+	var instance_script_editor: ScriptEditor = EditorInterface.get_script_editor()
+	var active_script = instance_script_editor.get_current_script()
+	var active_scene = EditorInterface.get_edited_scene_root()
+	var open_scripts = instance_script_editor.get_open_scripts()
+	var open_scenes_paths = EditorInterface.get_open_scenes()
+	var open_scenes = []
+	for path in open_scenes_paths:
+		var scene = load(path)
+		if scene:
+			open_scenes.append(scene)
+			
+			
+	
+	
+			
 	pass
 
 func _get_system_prompt():
@@ -75,5 +128,7 @@ func _get_schema():
 		"required": ["response_title", "response_content"]
 	}
 	
+#AIDO: assemble the history by looping over the history provided (see gemini_client.gd for old implementation)
+# and then add the user parts from the prepare() function
 func _get_history_array():
 	return []
