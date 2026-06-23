@@ -179,6 +179,7 @@ func _get_system_prompt():
 	return "
 	This is a code assistant for Godot Engine, the Godot Game Engine.
 	This is for Godot "+engine_version+". Check that the methods used are for version "+engine_version+"
+	The 'addons/AI_Gemini_GD/' addon is NOT part of the project.
 	
 	The response_title is a very short summary of the topic of the response.
 	
@@ -187,6 +188,8 @@ func _get_system_prompt():
 	This is the only way to provide formatting.
 	Do not use Markdown, HTML, or any other formatting.
 	The available types are: header, text, list_item_bullet, list_item_numeric, code, code_edit
+	
+	If a file is referenced in the reply, include a reference for it.
 	
 	The active script and active scene are the most likely subject if no specific context is specified.
 	
@@ -204,6 +207,8 @@ func _get_system_prompt():
 	
 	Fix code formatting with whitespace and indentation that matches the original file.
 	
+	Don't use 'project.godot' as a reference.
+	Don't show empty references, make sure to use the file resource path.
 	Use `resource_reference` to link to a resource or file, especially when locating or explaining.
 	`resource_reference` should contain a short, one-line description of the referenced file that is not the file path, and code_original_file is the godot reference path.
 	`resource_reference` should be included when that reference is required for the response.
