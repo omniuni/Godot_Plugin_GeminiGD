@@ -23,7 +23,6 @@ func set_query(query: String):
 	_query = query
 	pass
 
-#aido: add the history array
 func send():
 	prepare()
 	
@@ -59,7 +58,7 @@ func send():
 		"contents": contents_array,
 		"generationConfig": {
 			"thinkingConfig": {
-				"thinkingLevel": "HIGH",
+				"thinkingLevel": "MEDIUM",
 				"includeThoughts": true
 			},
 			"responseMimeType": "application/json",
@@ -143,7 +142,7 @@ func send():
 								for i in range(lines.size() - 1):
 									var line = lines[i]
 									if not line.strip_edges().is_empty():
-										request_progress.emit(line)
+										request_progress.emit(line.strip_edges())
 						else:
 							if not text_part.strip_edges().is_empty():
 								context["full_text"] += text_part
@@ -164,8 +163,8 @@ func send():
 				for line in lines:
 					line = line.strip_edges()
 					if line.begins_with("data:"):
-						var data_str = line.substr(5).strip_edges()
-						if not data_str.is_empty():
+						var data_str = line.substr(5)
+						if not data_str.strip_edges().is_empty():
 							var json_chunk = JSON.parse_string(data_str)
 							if typeof(json_chunk) == TYPE_DICTIONARY:
 								process_chunk.call(json_chunk)

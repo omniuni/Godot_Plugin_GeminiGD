@@ -22,40 +22,118 @@ func set_history(history: Array):
 	print(str(history))
 	pass
 
-#AIDO: Finish migrating from gemini_client.gd
+var _prepared_history: Array = []
+
 func prepare() -> void:
 	EditorInterface.save_all_scenes()
 	
-	#AIDO: Construct the parts array for the user message
+	var context_parts = []
+	var added_paths = {}
 	
-	#AIDO: if _prepare_context is false, done preparing.
-	
-	#AIDO: if _prepare_only_current is true, get the active script, and only add that and return
-	
-	#AIDO: if _prepare_active_files is true, get all the active files and scenes, and add them
-	
-	#AIDO: if _prepare_scan is true, get a list of ALL .tscn, .cfg, .gd, .json, .txt, and image files in the project directory
-	# unless a file has already been added in _prepare_active_files, check the file name, location, and content (for text files) to see if it contains any of the _prepare_scan_terms
-	# if the file matches the scan terms, include the file and its content as a user message
-	
-	#AIDO: cache this array of user parts
-	
-	var instance_script_editor: ScriptEditor = EditorInterface.get_script_editor()
-	var active_script = instance_script_editor.get_current_script()
-	var active_scene = EditorInterface.get_edited_scene_root()
-	var open_scripts = instance_script_editor.get_open_scripts()
-	var open_scenes_paths = EditorInterface.get_open_scenes()
-	var open_scenes = []
-	for path in open_scenes_paths:
-		var scene = load(path)
-		if scene:
-			open_scenes.append(scene)
-			
-			
-	
-	
-			
-	pass
+	if _prepare_context:
+		if _prepare_only_current:
+			var instance_script_editor: ScriptEditor = EditorInterface.get_script_editor()
+			var active_script = instance_script_editor.get_current_script()
+			if active_script:
+				context_parts.append("The Active Script is " + active_script.resource_path)
+				context_parts.append("Script Resource: " + active_script.resource_path + "\nContents:\n" + active_script.source_code + "\n")
+		else:
+			if _prepare_active_files:
+				var instance_script_editor: ScriptEditor = EditorInterface.get_script_editor()
+				var active_script = instance_script_editor.get_current_script()
+				var active_scene = EditorInterface.get_edited_scene_root()
+				var open_scripts = instance_script_editor.get_open_scripts()
+				var open_scenes_paths = EditorInterface.get_open_scenes()
+				
+				if active_script:
+					context_parts.append("The Active Script is " + active_script.resource_path)
+					context_parts.append("Script Resource: " + active_script.resource_path + "\nContents:\n" + active_script.source_code + "\n")
+					added_paths[active_script.resource_path] = true
+					
+				if active_scene:
+					var scene_path = active_scene.scene_file_path
+					if not scene_path.is_empty() and not added_paths.has(scene_path):
+						context_parts.append("The active Scene is " + scene_path + "\nContents: " + FileAccess.get_file_as_string(scene_path) + "\n")
+						added_paths[scene_path] = true
+						
+				for script in open_scripts:
+					var script_path = script.resource_path
+					if not script_path.is_empty() and not added_paths.has(script_path):
+						context_parts.append("Script Resource: " + script_path + "\nContents:\n" + script.source_code + "\n")
+						added_paths[script_path] = true
+						
+				for scene_path in open_scenes_paths:
+					if not scene_path.is_empty() and not added_paths.has(scene_path):
+						var scene_file_contents = ""
+						if FileAccess.file_exists(scene_path):
+							scene_file_contents = FileAccess.get_file_as_string(scene_path)
+						context_parts.append("Scene Resource: " + scene_path + "\nContents:\n" + scene_file_contents)
+						added_paths[scene_path] = true
+						
+			if _prepare_scan:
+				var scan_terms = []
+				for term in _prepare_scan_terms:
+					if term is String:
+						var t = term.strip_edges()
+						if not t.is_empty():
+							scan_terms.append(t.to_lower())
+							
+				if not scan_terms.is_empty():
+					var file_list = []
+					_scan_dir("res://", file_list)
+					for file_path in file_list:
+						if added_paths.has(file_path):
+							continue
+						var ext = file_path.get_extension().to_lower()
+						var file_matched = false
+						var file_path_lower = file_path.to_lower()
+						
+						for term in scan_terms:
+							if term in file_path_lower:
+								file_matched = true
+								break
+								
+						if not file_matched and ext in ["tscn", "cfg", "gd", "json", "txt"]:
+							var content = FileAccess.get_file_as_string(file_path)
+							var content_lower = content.to_lower()
+							for term in scan_terms:
+								if term in content_lower:
+									file_matched = true
+									break
+									
+						if file_matched:
+							if ext in ["png", "jpg", "jpeg", "webp", "svg"]:
+								context_parts.append("Image File: " + file_path)
+							else:
+								var content = FileAccess.get_file_as_string(file_path)
+								context_parts.append("File: " + file_path + "\nContents:\n" + content + "\n")
+
+	var context_string = "\n".join(context_parts)
+	var final_history = _history.duplicate(true)
+	if not context_string.is_empty():
+		final_history.append({
+			"user": context_string,
+			"assistant": ""
+		})
+	_prepared_history = final_history
+
+func _scan_dir(path: String, file_list: Array) -> void:
+	var dir = DirAccess.open(path)
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if file_name != "." and file_name != "..":
+				var full_path = path.path_join(file_name)
+				if dir.current_is_dir():
+					if file_name != ".godot" and file_name != ".git":
+						_scan_dir(full_path, file_list)
+				else:
+					var ext = file_name.get_extension().to_lower()
+					if ext in ["tscn", "cfg", "gd", "json", "txt", "png", "svg", "jpg", "jpeg", "webp"]:
+						file_list.append(full_path)
+			file_name = dir.get_next()
+		dir.list_dir_end()
 
 func _get_system_prompt():
 	var engine_version = Engine.get_version_info().string
@@ -128,7 +206,5 @@ func _get_schema():
 		"required": ["response_title", "response_content"]
 	}
 	
-#AIDO: assemble the history by looping over the history provided (see gemini_client.gd for old implementation)
-# and then add the user parts from the prepare() function
-func _get_history_array():
-	return []
+func _get_history_array() -> Array:
+	return _prepared_history
