@@ -9,6 +9,7 @@ class_name UiChatElement
 var gemini_client_checks: GeminiClientChecks
 
 signal signal_status
+signal signal_thinking
 
 var _prompt: String = ""
 
@@ -33,31 +34,39 @@ func set_prompt(prompt: String):
 	if not prompt.strip_edges().is_empty():
 		_prompt = prompt
 		node_foldable_container.title = "..."
-	#_send_request()
-	_send_checks()
+	_send_request()
 	pass
 
-func _on_g_checks_error():
-	
+func _on_g_checks_error(string: String):
+	print(string)
+	signal_thinking.emit("")
 	pass
 	
-func _on_g_checks_success(string: String):
-	
+func _on_g_checks_success(dict: Dictionary):
+	_status_word = "Got Requirements."
+	_status_percent = 20
+	_on_status_changed()
+	signal_thinking.emit("")
 	pass
 	
 func _on_g_checks_progress(string: String):
-	
+	print("THINKING: "+string)
+	signal_thinking.emit(string)
 	pass
 	
 func _send_checks():
-	print("_send_checks()")
+	_status_word = "Checking Requirements..."
+	_status_percent = 10
+	_on_status_changed()
 	gemini_client_checks.prepare()
 	gemini_client_checks.set_query(_prompt)
 	gemini_client_checks.send()
 	pass
 
 func _send_request():
-	
+	signal_thinking.emit("")
+	node_ui_request.set_request(_prompt)
+	_send_checks()
 	pass
 
 

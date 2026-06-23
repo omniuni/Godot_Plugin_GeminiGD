@@ -41,8 +41,8 @@ size_flags_horizontal = 3
 size_flags_vertical = 10
 
 [node name="LabelWelcome" type="Label" parent="VBoxTabChat/MarginContainerConversation/ScrollContainer/VBoxConversation" unique_id=1040743686]
-custom_minimum_size = Vector2(0, 60)
-custom_maximum_size = Vector2(400, 800)
+custom_minimum_size = Vector2(300, 60)
+custom_maximum_size = Vector2(-1, 400)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 8
@@ -85,9 +85,12 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="LabelThought" type="Label" parent="VBoxTabChat/MarginContainerThought" unique_id=1808478398]
+custom_minimum_size = Vector2(120, 0)
+custom_maximum_size = Vector2(-1, 200)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxEmpty_reri4")
+autowrap_mode = 3
 
 [node name="MarginContainerChatButtons" type="MarginContainer" parent="VBoxTabChat" unique_id=1111772763]
 layout_mode = 2

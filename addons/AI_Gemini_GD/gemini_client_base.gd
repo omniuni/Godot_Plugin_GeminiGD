@@ -22,9 +22,8 @@ func _ready() -> void:
 func set_query(query: String):
 	_query = query
 	pass
-	
+
 func send():
-	
 	var headers = [
 		"Content-Type: application/json",
 		"X-goog-api-key: "+get_key()
@@ -54,14 +53,119 @@ func send():
 	var payload = {
 		"contents": contents_array,
 		"generationConfig": {
-			"thinkingConfig": {"thinkingLevel": "HIGH"},
+			"thinkingConfig": {
+				"thinkingLevel": "HIGH",
+				"includeThoughts": true
+			},
 			"responseMimeType": "application/json",
 			"responseSchema": _get_schema()
 		},
 		"systemInstruction": system_instruction
 	}
 	
+	var use_ssl = _url.begins_with("https://")
+	var host = _url.replace("https://", "").replace("http://", "")
+	var slash_pos = host.find("/")
+	var path = ""
+	if slash_pos != -1:
+		path = host.substr(slash_pos)
+		host = host.substr(0, slash_pos)
+	else:
+		path = "/"
 	
+	if not "alt=sse" in path:
+		if path.contains("?"):
+			path += "&alt=sse"
+		else:
+			path += "?alt=sse"
+
+	var port = 443 if use_ssl else 80
+	var client = HTTPClient.new()
+	var err = client.connect_to_host(host, port, TLSOptions.client() if use_ssl else null)
+	if err != OK:
+		request_failed.emit("Failed to connect to host: " + str(err))
+		return null
+		
+	while client.get_status() == HTTPClient.STATUS_CONNECTING or client.get_status() == HTTPClient.STATUS_RESOLVING:
+		client.poll()
+		await get_tree().process_frame
+		
+	if client.get_status() != HTTPClient.STATUS_CONNECTED:
+		request_failed.emit("Connection failed. Status: " + str(client.get_status()))
+		return null
+		
+	var json_body = JSON.stringify(payload)
+	var req_err = client.request(HTTPClient.METHOD_POST, path, headers, json_body)
+	if req_err != OK:
+		request_failed.emit("Failed to send HTTP request: " + str(req_err))
+		return null
+		
+	while client.get_status() == HTTPClient.STATUS_REQUESTING:
+		client.poll()
+		await get_tree().process_frame
+		
+	if client.get_status() != HTTPClient.STATUS_BODY and client.get_status() != HTTPClient.STATUS_CONNECTED:
+		request_failed.emit("Request failed. Status: " + str(client.get_status()))
+		return null
+		
+	if not client.has_response():
+		request_failed.emit("No response from server.")
+		return null
+		
+	var response_code = client.get_response_code()
+	if response_code != 200:
+		request_failed.emit("API request failed. HTTP Code: " + str(response_code))
+		return null
+		
+	var sse_buffer = ""
+	var context = {
+		"full_text": "",
+		"thinking_buffer": ""
+	}
+	
+	var process_chunk = func(json_chunk: Dictionary):
+		if json_chunk.has("candidates") and json_chunk["candidates"].size() > 0:
+			var candidate = json_chunk["candidates"][0]
+			if candidate.has("content") and candidate["content"].has("parts"):
+				for part in candidate["content"]["parts"]:
+					if typeof(part) == TYPE_DICTIONARY:
+						var text_part = part.get("text", "")
+						if part.get("thought", false) == true:
+							context["thinking_buffer"] += text_part
+							if "\n" in context["thinking_buffer"]:
+								var lines = context["thinking_buffer"].split("\n")
+								context["thinking_buffer"] = lines[-1]
+								for i in range(lines.size() - 1):
+									var line = lines[i]
+									if not line.strip_edges().is_empty():
+										request_progress.emit(line)
+						else:
+							if not text_part.strip_edges().is_empty():
+								context["full_text"] += text_part
+								var stripped_ft = context["full_text"].strip_edges()
+								if stripped_ft.begins_with("{") and stripped_ft.ends_with("}"):
+									var complete_response: Dictionary = JSON.parse_string(stripped_ft)
+									request_completed.emit(complete_response)
+	
+	while client.get_status() == HTTPClient.STATUS_BODY:
+		client.poll()
+		if client.has_response():
+			var chunk = client.read_response_body_chunk()
+			if chunk.size() > 0:
+				sse_buffer += chunk.get_string_from_utf8()
+				var lines = sse_buffer.split("\n")
+				sse_buffer = lines[-1]
+				lines.remove_at(lines.size() - 1)
+				for line in lines:
+					line = line.strip_edges()
+					if line.begins_with("data:"):
+						var data_str = line.substr(5).strip_edges()
+						if not data_str.is_empty():
+							var json_chunk = JSON.parse_string(data_str)
+							if typeof(json_chunk) == TYPE_DICTIONARY:
+								process_chunk.call(json_chunk)
+		await get_tree().process_frame
+
 	pass
 	
 @abstract func _get_system_prompt()
