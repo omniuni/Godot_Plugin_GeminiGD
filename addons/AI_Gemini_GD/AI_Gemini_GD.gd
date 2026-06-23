@@ -52,6 +52,17 @@ func _enter_tree() -> void:
 		})
 	ProjectSettings.set_as_basic(setting_dynamic_context, true)
 	
+	# Debug Mode
+	var setting_debug = "gemini_gd/gemini_configuration/enable_debug"
+	if not ProjectSettings.has_setting(setting_debug):
+		ProjectSettings.set_setting(setting_debug, false)
+		ProjectSettings.set_initial_value(setting_debug, false)
+		ProjectSettings.add_property_info({
+			"name": setting_debug,
+			"type": TYPE_BOOL
+		})
+	ProjectSettings.set_as_basic(setting_debug, false)
+	
 	var dock_scene = preload("res://addons/AI_Gemini_GD/ui/main/GGD_Dock_Main.tscn").instantiate()
 	scn_geminigd_dock = EditorDock.new()
 	scn_geminigd_dock.add_child(dock_scene)

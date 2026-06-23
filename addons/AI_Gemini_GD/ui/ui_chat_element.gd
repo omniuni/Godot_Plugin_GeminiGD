@@ -6,9 +6,11 @@ class_name UiChatElement
 @onready var node_ui_request: UiRequest = $FoldableContainer/VBoxContainer/UiRequest
 @onready var node_ui_response: UiResponse = $FoldableContainer/VBoxContainer/UiResponse
 
-var gemini_client: GeminiClient
+var gemini_client_checks: GeminiClientChecks
+var gemini_client_query: GeminiClientQuery
 
 signal signal_status
+signal signal_thinking
 
 var _prompt: String = ""
 
@@ -17,16 +19,8 @@ var _status_percent: int = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	gemini_client = GeminiClient.new()
-	gemini_client.request_completed.connect(_on_gemini_success)
-	gemini_client.request_failed.connect(_on_gemini_error)
-	add_child(gemini_client)
 	_on_status_changed()
 	pass # Replace with function body.
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
 	
 func _on_status_changed():
 	signal_status.emit(_status_word, _status_percent)
@@ -36,59 +30,94 @@ func set_prompt(prompt: String):
 	if not prompt.strip_edges().is_empty():
 		_prompt = prompt
 		node_foldable_container.title = "..."
-	_send_request()
+		_send_checks()
 	pass
 
-func _send_request():
-	node_ui_request.set_request(_prompt)
-	EditorInterface.save_all_scenes()
+func _on_g_checks_error(string: String):
+	signal_thinking.emit("")
+	pass
 	
-	var instance_script_editor: ScriptEditor = EditorInterface.get_script_editor()
-	var active_script = instance_script_editor.get_current_script()
-	var active_scene = EditorInterface.get_edited_scene_root()
-	var open_scripts = instance_script_editor.get_open_scripts()
-	var open_scenes_paths = EditorInterface.get_open_scenes()
-	var open_scenes = []
-	for path in open_scenes_paths:
-		var scene = load(path)
-		if scene:
-			open_scenes.append(scene)
-			
-	_status_word = "Sending..."
-	_status_percent = 50
+func _on_g_checks_success(dict: Dictionary):
+	signal_thinking.emit("")
+	gemini_client_checks.queue_free()
+	_status_word = "Checking Context..."
+	_status_percent = 30
 	_on_status_changed()
+	_send_query(dict)
+	pass
 	
-	# get history
+var has_updated_checks_once: bool = false
+func _on_g_checks_progress(string: String):
+	if not has_updated_checks_once:
+		has_updated_checks_once = true
+		_status_word = "Considering Context..."
+		_status_percent = 20
+		_on_status_changed()
+	signal_thinking.emit(string)
+	pass
+
+func _send_checks():
+	signal_thinking.emit("")
+	_status_word = "Checking Requirements..."
+	_status_percent = 10
+	_on_status_changed()
+	gemini_client_checks = GeminiClientChecks.new()
+	gemini_client_checks.request_completed.connect(_on_g_checks_success)
+	gemini_client_checks.request_failed.connect(_on_g_checks_error)
+	gemini_client_checks.request_progress.connect(_on_g_checks_progress)
+	add_child(gemini_client_checks)
+	node_ui_request.set_request(_prompt)
+	gemini_client_checks.set_query(_prompt)
+	gemini_client_checks.send()
+	pass
+
+func _send_query(checks: Dictionary):
+	_status_word = "Preparing Query..."
+	_status_percent = 45
+	_on_status_changed()
+	signal_thinking.emit("")
+	gemini_client_query = GeminiClientQuery.new()
+	gemini_client_query.request_completed.connect(_on_g_query_success)
+	gemini_client_query.request_failed.connect(_on_g_query_error)
+	gemini_client_query.request_progress.connect(_on_g_query_progress)
+	add_child(gemini_client_query)
+	gemini_client_query.configure(
+		checks['query_requires_context'],
+		checks['query_requires_only_current'],
+		checks['query_requires_active_files'],
+		checks['query_requires_file_scan'],
+		checks['file_scan_search_terms']
+	)
 	var parent = get_parent().get_parent().get_parent().get_parent().get_parent()
 	if parent is UiTabChat:
 		var parent_chat: UiTabChat = parent
 		var history = parent_chat.get_conversation_history()
-		print("Got history")
-		gemini_client.send_prompt(_prompt, open_scripts, open_scenes, active_script, active_scene, history)
-	else:
-		_status_word = "Error"
-		_status_percent = 0
-		_on_status_changed()
-		pass
+		gemini_client_query.set_history(history)
+	gemini_client_query.set_query(_prompt)
+	gemini_client_query.send()
+	pass
 
-	_status_word = "Waiting for Gemini..."
-	_status_percent = 55
-	_on_status_changed()
-
+func _on_g_query_error(string: String):
+	signal_thinking.emit("")
 	pass
 	
-func _on_gemini_error(error: String) -> void:
-	_status_word = "Error sending to Gemini"
-	_status_percent = 0
-	_on_status_changed()
-	pass
-		
-func _on_gemini_success(title: String, data: Array) -> void:
+func _on_g_query_success(dict: Dictionary):
 	_status_word = "Done"
 	_status_percent = 100
-	node_foldable_container.title = title
-	node_ui_response.set_responses(data)
+	node_foldable_container.title = dict['response_title']
+	node_ui_response.set_responses(dict['response_content'])
 	_on_status_changed()
+	signal_thinking.emit("")
+	pass
+	
+var has_updated_query_once: bool = false
+func _on_g_query_progress(string: String):
+	if not has_updated_query_once:
+		has_updated_checks_once = true
+		_status_word = "Analyzing Query..."
+		_status_percent = 75
+		_on_status_changed()
+	signal_thinking.emit(string)
 	pass
 
 func get_chat_item() -> Dictionary:

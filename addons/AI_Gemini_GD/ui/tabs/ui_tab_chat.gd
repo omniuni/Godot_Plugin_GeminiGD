@@ -9,6 +9,8 @@ class_name UiTabChat
 @onready var node_vbox_conversation: VBoxContainer = $VBoxTabChat/MarginContainerConversation/ScrollContainer/VBoxConversation
 @onready var node_label_welcome: Label = $VBoxTabChat/MarginContainerConversation/ScrollContainer/VBoxConversation/LabelWelcome
 @onready var node_scroll: ScrollContainer = $VBoxTabChat/MarginContainerConversation/ScrollContainer
+@onready var node_thinking: Label = $VBoxTabChat/MarginContainerThought/LabelThought
+@onready var node_container_thought: MarginContainer = $VBoxTabChat/MarginContainerThought
 
 var _current_prompt
 
@@ -38,6 +40,7 @@ func _on_text_edit_prompt_text_changed() -> void:
 func _on_button_send_prompt_pressed(clear: bool = true) -> void:
 	var chat_element: UiChatElement = ui_preload_chat_element.instantiate()
 	chat_element.connect('signal_status', _on_status_update)
+	chat_element.connect('signal_thinking', _on_thought_update)
 	
 	if node_label_welcome.visible:
 		node_label_welcome.hide()
@@ -58,6 +61,15 @@ func _on_status_update(status_text: String, status_percent: int) -> void:
 		await get_tree().create_timer(0.75).timeout
 		node_label_status.text = "Ready"
 		node_progress.value = 0
+	pass
+	
+func _on_thought_update(thought: String) -> void:
+	if not thought.is_empty():
+		node_container_thought.visible = true
+		node_thinking.text = thought
+	else:
+		node_thinking.text = ""
+		node_container_thought.visible = false
 	pass
 
 func _on_button_clear_chat_pressed() -> void:

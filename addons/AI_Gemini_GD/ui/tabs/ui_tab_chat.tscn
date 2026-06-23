@@ -2,6 +2,12 @@
 
 [ext_resource type="Script" uid="uid://b6e4pso6ad1ru" path="res://addons/AI_Gemini_GD/ui/tabs/ui_tab_chat.gd" id="1_hf5y0"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_reri4"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hf5y0"]
 
 [node name="UiTabChat" type="Control" unique_id=420249608]
@@ -35,14 +41,17 @@ size_flags_horizontal = 3
 size_flags_vertical = 10
 
 [node name="LabelWelcome" type="Label" parent="VBoxTabChat/MarginContainerConversation/ScrollContainer/VBoxConversation" unique_id=1040743686]
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(300, 60)
+custom_maximum_size = Vector2(-1, 400)
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
 text = "
 Welcome to Gemini GD —
 Bringing Google Gemini to Godot
 
-ALPHA RELEASE!
-Updated: 2026/05/16
+BETA RELEASE!
+Updated: 2026/06/23
 https://github.com/omniuni/Godot_Plugin_GeminiGD
 
 Enter a prompt to get started.
@@ -68,6 +77,20 @@ scroll_fit_content_height = true
 [node name="ButtonSendPrompt" type="Button" parent="VBoxTabChat/MarginContainerPrompt/HBoxPrompt" unique_id=619634834]
 layout_mode = 2
 text = "Send"
+
+[node name="MarginContainerThought" type="MarginContainer" parent="VBoxTabChat" unique_id=656074315]
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="VBoxTabChat/MarginContainerThought" unique_id=1801653911]
+layout_mode = 2
+
+[node name="LabelThought" type="Label" parent="VBoxTabChat/MarginContainerThought" unique_id=1808478398]
+custom_minimum_size = Vector2(120, 0)
+custom_maximum_size = Vector2(-1, 200)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxEmpty_reri4")
+autowrap_mode = 3
 
 [node name="MarginContainerChatButtons" type="MarginContainer" parent="VBoxTabChat" unique_id=1111772763]
 layout_mode = 2
