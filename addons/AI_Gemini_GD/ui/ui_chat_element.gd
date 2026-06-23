@@ -34,14 +34,11 @@ func set_prompt(prompt: String):
 	pass
 
 func _on_g_checks_error(string: String):
-	print(string)
 	signal_thinking.emit("")
 	pass
 	
 func _on_g_checks_success(dict: Dictionary):
 	signal_thinking.emit("")
-	print("SUCCESS:")
-	print(str(dict))
 	gemini_client_checks.queue_free()
 	_status_word = "Checking Context..."
 	_status_percent = 30
@@ -56,7 +53,6 @@ func _on_g_checks_progress(string: String):
 		_status_word = "Considering Context..."
 		_status_percent = 20
 		_on_status_changed()
-	print("THINKING: "+string)
 	signal_thinking.emit(string)
 	pass
 
@@ -102,7 +98,6 @@ func _send_query(checks: Dictionary):
 	pass
 
 func _on_g_query_error(string: String):
-	print(string)
 	signal_thinking.emit("")
 	pass
 	
@@ -111,8 +106,6 @@ func _on_g_query_success(dict: Dictionary):
 	_status_percent = 100
 	node_foldable_container.title = dict['response_title']
 	node_ui_response.set_responses(dict['response_content'])
-	print("QUERY SUCCESS:")
-	print(str(dict))
 	_on_status_changed()
 	signal_thinking.emit("")
 	pass
@@ -124,7 +117,6 @@ func _on_g_query_progress(string: String):
 		_status_word = "Analyzing Query..."
 		_status_percent = 75
 		_on_status_changed()
-	print("THINKING: "+string)
 	signal_thinking.emit(string)
 	pass
 

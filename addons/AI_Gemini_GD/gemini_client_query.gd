@@ -17,9 +17,9 @@ func configure(context: bool, current: bool, active: bool, scan: bool, terms: Ar
 	pass
 	
 func set_history(history: Array):
-	print('got history!')
+	_log("[" + _get_client_name() + "] got history!")
 	_history = history
-	print(str(history))
+	_log("[" + _get_client_name() + "] history details: " + str(history))
 	pass
 
 var _prepared_history: Array = []
@@ -29,6 +29,8 @@ func prepare() -> void:
 	
 	var context_parts = []
 	var added_paths = {}
+	var files_in_scan = []
+	var active_open_files = []
 	
 	if _prepare_context:
 		if _prepare_only_current:
@@ -37,6 +39,7 @@ func prepare() -> void:
 			if active_script:
 				context_parts.append("The Active Script is " + active_script.resource_path)
 				context_parts.append("Script Resource: " + active_script.resource_path + "\nContents:\n" + active_script.source_code + "\n")
+				active_open_files.append(active_script.resource_path + " (Active Script)")
 		else:
 			if _prepare_active_files:
 				var instance_script_editor: ScriptEditor = EditorInterface.get_script_editor()
@@ -49,18 +52,21 @@ func prepare() -> void:
 					context_parts.append("The Active Script is " + active_script.resource_path)
 					context_parts.append("Script Resource: " + active_script.resource_path + "\nContents:\n" + active_script.source_code + "\n")
 					added_paths[active_script.resource_path] = true
+					active_open_files.append(active_script.resource_path + " (Active Script)")
 					
 				if active_scene:
 					var scene_path = active_scene.scene_file_path
 					if not scene_path.is_empty() and not added_paths.has(scene_path):
 						context_parts.append("The active Scene is " + scene_path + "\nContents: " + FileAccess.get_file_as_string(scene_path) + "\n")
 						added_paths[scene_path] = true
+						active_open_files.append(scene_path + " (Active Scene)")
 						
 				for script in open_scripts:
 					var script_path = script.resource_path
 					if not script_path.is_empty() and not added_paths.has(script_path):
 						context_parts.append("Script Resource: " + script_path + "\nContents:\n" + script.source_code + "\n")
 						added_paths[script_path] = true
+						active_open_files.append(script_path + " (Open Script)")
 						
 				for scene_path in open_scenes_paths:
 					if not scene_path.is_empty() and not added_paths.has(scene_path):
@@ -69,6 +75,7 @@ func prepare() -> void:
 							scene_file_contents = FileAccess.get_file_as_string(scene_path)
 						context_parts.append("Scene Resource: " + scene_path + "\nContents:\n" + scene_file_contents)
 						added_paths[scene_path] = true
+						active_open_files.append(scene_path + " (Open Scene)")
 						
 			if _prepare_scan:
 				var scan_terms = []
@@ -102,6 +109,7 @@ func prepare() -> void:
 									break
 									
 						if file_matched:
+							files_in_scan.append(file_path)
 							if ext in ["png", "jpg", "jpeg", "webp", "svg"]:
 								context_parts.append("Image File: " + file_path)
 							else:
@@ -116,6 +124,37 @@ func prepare() -> void:
 			"assistant": ""
 		})
 	_prepared_history = final_history
+
+	# Generate and output the nice debug summary
+	
+	var summary = "=== GEMINI CLIENT QUERY DEBUG SUMMARY ===\n"
+	summary += "Model URL: " + _url + "\n"
+	summary += "Number of History Items: " + str(_history.size()) + "\n"
+			
+	summary += "Context Configuration:\n"
+	summary += "  - Require Context: " + str(_prepare_context) + "\n"
+	summary += "  - Only Current: " + str(_prepare_only_current) + "\n"
+	summary += "  - Active Files: " + str(_prepare_active_files) + "\n"
+	summary += "  - File Scan: " + str(_prepare_scan) + "\n"
+	if _prepare_scan:
+		summary += "  - File Scan Terms: " + str(_prepare_scan_terms) + "\n"
+		
+	if active_open_files.is_empty():
+		summary += "Active/Open Files: None\n"
+	else:
+		summary += "Active/Open Files:\n"
+		for f in active_open_files:
+			summary += "  - " + f + "\n"
+			
+	if _prepare_scan:
+		if files_in_scan.is_empty():
+			summary += "Files Identified in Scan: None\n"
+		else:
+			summary += "Files Identified in Scan:\n"
+			for f in files_in_scan:
+				summary += "  - " + f + "\n"
+	summary += "========================================="
+	_log(summary)
 
 func _scan_dir(path: String, file_list: Array) -> void:
 	var dir = DirAccess.open(path)

@@ -8,8 +8,18 @@ func prepare() -> void:
 	EditorInterface.save_all_scenes()
 	var instance_script_editor: ScriptEditor = EditorInterface.get_script_editor()
 	var active_script = instance_script_editor.get_current_script()
-	_current_file = active_script.resource_path
-	_current_content = active_script.source_code
+	if active_script:
+		_current_file = active_script.resource_path
+		_current_content = active_script.source_code
+	else:
+		_current_file = ""
+		_current_content = ""
+		
+	var summary = "=== GEMINI CLIENT CHECKS DEBUG SUMMARY ===\n"
+	summary += "Model URL: " + _url + "\n"
+	summary += "Active Script File: " + (_current_file if not _current_file.is_empty() else "None") + "\n"
+	summary += "=========================================="
+	_log(summary)
 	pass
 	
 func _get_system_prompt():

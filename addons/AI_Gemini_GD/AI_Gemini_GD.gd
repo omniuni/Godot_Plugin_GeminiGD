@@ -52,9 +52,6 @@ func _enter_tree() -> void:
 		})
 	ProjectSettings.set_as_basic(setting_dynamic_context, true)
 	
-	#AIDO: use this debug setting, so that the gemini_client_* logs thinking, collecting files and content, and the output
-	# remove print statements that are not surrounded by checks to this debug value from the ui elements
-	
 	# Debug Mode
 	var setting_debug = "gemini_gd/gemini_configuration/enable_debug"
 	if not ProjectSettings.has_setting(setting_debug):
