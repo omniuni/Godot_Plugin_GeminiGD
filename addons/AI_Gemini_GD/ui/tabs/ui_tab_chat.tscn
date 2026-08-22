@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://b7jrg1aqf4nxk"]
 
 [ext_resource type="Script" uid="uid://b6e4pso6ad1ru" path="res://addons/AI_Gemini_GD/ui/tabs/ui_tab_chat.gd" id="1_hf5y0"]
+[ext_resource type="Script" uid="uid://bgq4swlcwxppp" path="res://addons/AI_Gemini_GD/ui/ui_resource_picker.gd" id="2_pk4e1"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_reri4"]
 content_margin_left = 6.0
@@ -67,6 +68,12 @@ layout_mode = 2
 [node name="HBoxPrompt" type="HBoxContainer" parent="VBoxTabChat/MarginContainerPrompt" unique_id=100449689]
 layout_mode = 2
 
+[node name="EditorResourcePicker" type="EditorResourcePicker" parent="VBoxTabChat/MarginContainerPrompt/HBoxPrompt" unique_id=554255518]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+base_type = "Resource"
+script = ExtResource("2_pk4e1")
+
 [node name="TextEditPrompt" type="TextEdit" parent="VBoxTabChat/MarginContainerPrompt/HBoxPrompt" unique_id=1656056093]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -77,6 +84,18 @@ scroll_fit_content_height = true
 [node name="ButtonSendPrompt" type="Button" parent="VBoxTabChat/MarginContainerPrompt/HBoxPrompt" unique_id=619634834]
 layout_mode = 2
 text = "Send"
+
+[node name="MarginContainerFiles" type="MarginContainer" parent="VBoxTabChat" unique_id=1893383006]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 2
+
+[node name="VBoxFileList" type="VBoxContainer" parent="VBoxTabChat/MarginContainerFiles" unique_id=1722712378]
+layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="MarginContainerThought" type="MarginContainer" parent="VBoxTabChat" unique_id=656074315]
 layout_mode = 2
@@ -122,6 +141,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 uppercase = true
 
+[connection signal="resource_changed" from="VBoxTabChat/MarginContainerPrompt/HBoxPrompt/EditorResourcePicker" to="." method="_on_editor_resource_picker_resource_changed"]
 [connection signal="text_changed" from="VBoxTabChat/MarginContainerPrompt/HBoxPrompt/TextEditPrompt" to="." method="_on_text_edit_prompt_text_changed"]
 [connection signal="pressed" from="VBoxTabChat/MarginContainerPrompt/HBoxPrompt/ButtonSendPrompt" to="." method="_on_button_send_prompt_pressed"]
 [connection signal="pressed" from="VBoxTabChat/MarginContainerChatButtons/HBoxChatButtons/ButtonClearChat" to="." method="_on_button_clear_chat_pressed"]

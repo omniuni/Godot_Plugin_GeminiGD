@@ -49,7 +49,7 @@ func set_value(code: String, file: String, code_original: String):
 			target_line = int(code_original)
 			can_apply = true
 		elif content.contains(code_original):
-			target_line = content.left(content.find(code_original)).count("\n")+1
+			target_line = content.left(content.find(code_original)).count("\n") + 1
 			can_apply = true
 	
 	if can_apply:
@@ -81,34 +81,50 @@ func _on_button_apply_pressed() -> void:
 			return
 		EditorInterface.edit_resource(script)
 		var script_editor = EditorInterface.get_script_editor()
-		var code_edit: CodeEdit = script_editor.get_current_editor().get_base_editor()
-		var text = code_edit.text
-		
+		var current_editor = script_editor.get_current_editor()
+		if current_editor and current_editor.get_base_editor():
+			var script_code_edit: CodeEdit = current_editor.get_base_editor()
+			var text = script_code_edit.text
+			
+			if _code_original.is_valid_int():
+				var lines = text.split("\n")
+				var line_number = int(_code_original)
+				lines.insert(line_number, _code)
+				script_code_edit.text = "\n".join(lines)
+				script_code_edit.set_line_as_first_visible(line_number)
+				print("Code successfully inserted at line " + str(line_number) + ".")
+			else:
+				var index = text.find(_code_original)
+				if index != -1:
+					var new_text = text.substr(0, index) + _code + text.substr(index + _code_original.length())
+					script_code_edit.text = new_text
+					var line_number = new_text.left(index).count("\n")
+					script_code_edit.set_line_as_first_visible(line_number)
+					print("Code successfully replaced on line " + str(line_number) + ".")
+				else:
+					printerr("Could not find original code block to replace in " + _file)
+	else:
+		# Handles .json, .md, .tscn, .txt, .cfg and other text formats
+		var content = FileAccess.get_file_as_string(_file)
+		var new_content = ""
 		if _code_original.is_valid_int():
-			var lines = text.split("\n")
+			var lines = content.split("\n")
 			var line_number = int(_code_original)
 			lines.insert(line_number, _code)
-			code_edit.text = "\n".join(lines)
-			code_edit.set_line_as_first_visible(line_number)
-			print("Code successfully inserted at line " + str(line_number) + ".")
+			new_content = "\n".join(lines)
 		else:
-			var index = text.find(_code_original)
-			if index != -1:
-				var new_text = text.substr(0, index) + _code + text.substr(index + _code_original.length())
-				code_edit.text = new_text
-				var line_number = new_text.left(index).count("\n")
-				code_edit.set_line_as_first_visible(line_number)
-				print("Code successfully replaced on line " + str(line_number) + ".")
-			else:
-				printerr("Could not find original code block to replace.")
-	elif _file.ends_with(".tscn"):
-		var file = FileAccess.open(_file, FileAccess.READ_WRITE)
-		if file:
-			var content = file.get_as_text()
 			var index = content.find(_code_original)
 			if index != -1:
-				var new_content = content.substr(0, index) + _code + content.substr(index + _code_original.length())
-				file.store_string(new_content)
-				file.close()
-				EditorInterface.get_resource_filesystem().scan()
-				print("Scene code successfully replaced. Reload the scene if necessary.")
+				new_content = content.substr(0, index) + _code + content.substr(index + _code_original.length())
+			else:
+				printerr("Could not find original content block to replace in " + _file)
+				return
+
+		var file = FileAccess.open(_file, FileAccess.WRITE)
+		if file:
+			file.store_string(new_content)
+			file.close()
+			EditorInterface.get_resource_filesystem().scan()
+			print("File successfully updated: " + _file)
+		else:
+			printerr("Failed to open file for writing: " + _file)

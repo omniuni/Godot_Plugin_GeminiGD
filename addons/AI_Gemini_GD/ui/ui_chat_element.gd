@@ -13,6 +13,7 @@ signal signal_status
 signal signal_thinking
 
 var _prompt: String = ""
+var _selected_files: Array = []
 
 var _status_word: String = ""
 var _status_percent: int = 0
@@ -25,6 +26,9 @@ func _ready() -> void:
 func _on_status_changed():
 	signal_status.emit(_status_word, _status_percent)
 	pass
+
+func set_selected_files(files: Array) -> void:
+	_selected_files = files.duplicate()
 
 func set_prompt(prompt: String):
 	if not prompt.strip_edges().is_empty():
@@ -66,6 +70,7 @@ func _send_checks():
 	gemini_client_checks.request_failed.connect(_on_g_checks_error)
 	gemini_client_checks.request_progress.connect(_on_g_checks_progress)
 	add_child(gemini_client_checks)
+	gemini_client_checks.set_explicit_files(_selected_files)
 	node_ui_request.set_request(_prompt)
 	gemini_client_checks.set_query(_prompt)
 	gemini_client_checks.send()
@@ -81,6 +86,7 @@ func _send_query(checks: Dictionary):
 	gemini_client_query.request_failed.connect(_on_g_query_error)
 	gemini_client_query.request_progress.connect(_on_g_query_progress)
 	add_child(gemini_client_query)
+	gemini_client_query.set_explicit_files(_selected_files)
 	gemini_client_query.configure(
 		checks['query_requires_context'],
 		checks['query_requires_only_current'],
@@ -113,7 +119,7 @@ func _on_g_query_success(dict: Dictionary):
 var has_updated_query_once: bool = false
 func _on_g_query_progress(string: String):
 	if not has_updated_query_once:
-		has_updated_checks_once = true
+		has_updated_query_once = true
 		_status_word = "Analyzing Query..."
 		_status_percent = 75
 		_on_status_changed()

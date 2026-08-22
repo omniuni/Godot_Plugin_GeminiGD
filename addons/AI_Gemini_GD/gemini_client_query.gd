@@ -6,6 +6,7 @@ var _prepare_only_current: bool = false
 var _prepare_active_files: bool = false
 var _prepare_scan: bool = false
 var _prepare_scan_terms: Array = []
+var _explicit_files: Array = []
 var _history: Array = []
 
 func configure(context: bool, current: bool, active: bool, scan: bool, terms: Array):
@@ -14,6 +15,10 @@ func configure(context: bool, current: bool, active: bool, scan: bool, terms: Ar
 	_prepare_active_files = active
 	_prepare_scan = scan
 	_prepare_scan_terms = terms
+	pass
+
+func set_explicit_files(files: Array) -> void:
+	_explicit_files = files
 	pass
 	
 func set_history(history: Array):
@@ -31,6 +36,7 @@ func prepare() -> void:
 	var added_paths = {}
 	var files_in_scan = []
 	var active_open_files = []
+	var explicit_files_added = []
 	
 	if _prepare_context:
 		if _prepare_only_current:
@@ -39,6 +45,7 @@ func prepare() -> void:
 			if active_script:
 				context_parts.append("The Active Script is " + active_script.resource_path)
 				context_parts.append("Script Resource: " + active_script.resource_path + "\nContents:\n" + active_script.source_code + "\n")
+				added_paths[active_script.resource_path] = true
 				active_open_files.append(active_script.resource_path + " (Active Script)")
 		else:
 			if _prepare_active_files:
@@ -100,7 +107,7 @@ func prepare() -> void:
 								file_matched = true
 								break
 								
-						if not file_matched and ext in ["tscn", "cfg", "gd", "json", "txt"]:
+						if not file_matched and ext in ["tscn", "cfg", "gd", "json", "md", "txt"]:
 							var content = FileAccess.get_file_as_string(file_path)
 							var content_lower = content.to_lower()
 							for term in scan_terms:
@@ -115,6 +122,26 @@ func prepare() -> void:
 							else:
 								var content = FileAccess.get_file_as_string(file_path)
 								context_parts.append("File: " + file_path + "\nContents:\n" + content + "\n")
+							added_paths[file_path] = true
+
+	# Explicitly selected files (added if not already included)
+	for file_path in _explicit_files:
+		if file_path is String and not file_path.is_empty() and not added_paths.has(file_path):
+			if FileAccess.file_exists(file_path):
+				var ext = file_path.get_extension().to_lower()
+				if ext in ["png", "jpg", "jpeg", "webp", "svg"]:
+					context_parts.append("Image File: " + file_path)
+				elif ext in ["gd"]:
+					var content = FileAccess.get_file_as_string(file_path)
+					context_parts.append("Script Resource: " + file_path + "\nContents:\n" + content + "\n")
+				elif ext in ["tscn"]:
+					var content = FileAccess.get_file_as_string(file_path)
+					context_parts.append("Scene Resource: " + file_path + "\nContents:\n" + content + "\n")
+				else:
+					var content = FileAccess.get_file_as_string(file_path)
+					context_parts.append("File: " + file_path + "\nContents:\n" + content + "\n")
+				added_paths[file_path] = true
+				explicit_files_added.append(file_path)
 
 	var context_string = "\n".join(context_parts)
 	var final_history = _history.duplicate(true)
@@ -145,6 +172,11 @@ func prepare() -> void:
 		summary += "Active/Open Files:\n"
 		for f in active_open_files:
 			summary += "  - " + f + "\n"
+
+	if not explicit_files_added.is_empty():
+		summary += "Explicitly Added Files:\n"
+		for f in explicit_files_added:
+			summary += "  - " + f + "\n"
 			
 	if _prepare_scan:
 		if files_in_scan.is_empty():
@@ -169,7 +201,7 @@ func _scan_dir(path: String, file_list: Array) -> void:
 						_scan_dir(full_path, file_list)
 				else:
 					var ext = file_name.get_extension().to_lower()
-					if ext in ["tscn", "cfg", "gd", "json", "txt", "png", "svg", "jpg", "jpeg", "webp"]:
+					if ext in ["tscn", "cfg", "gd", "json", "md", "txt", "png", "svg", "jpg", "jpeg", "webp"]:
 						file_list.append(full_path)
 			file_name = dir.get_next()
 		dir.list_dir_end()
@@ -194,18 +226,19 @@ func _get_system_prompt():
 	The active script and active scene are the most likely subject if no specific context is specified.
 	
 	Code must be formatted with whitespace as per the original file.
-	When being asked for code changes, be thorough, making multiple changes in different files or different locations of the file if necessary.
-	Files and resources ending in .gd are GDScript. GDScript is whitespace sensitive.
+	When being asked for changes, be thorough, making multiple changes in different files or different locations of the file if necessary.
+	Files and resources ending in .gd are GDScript (GDScript is whitespace sensitive).
+	Files ending in .json, .md, .tscn, .cfg, .txt are also editable.
 	
-	`code_edit` is a special type indicating that the code block should edit by adding or replacing existing code in the file.
-	`code_edit` must specify the fields code_original_file and code_original_reference which will replace code_original_reference with the content_value in the code_original_file as specified with the full script resource path.
-	code_original_reference must exactly and fully match the code that is being replaced.
-	code_original_reference must contain at least two lines of existing code before and after the region that will be changed to ensure accurate matching.
+	`code_edit` is a special type indicating that the code/content block should edit by adding or replacing existing code/content in the file.
+	`code_edit` must specify the fields code_original_file and code_original_reference which will replace code_original_reference with the content_value in the code_original_file as specified with the full file/resource path.
+	code_original_reference must exactly and fully match the code or text that is being replaced.
+	code_original_reference must contain at least two lines of existing text before and after the region that will be changed to ensure accurate matching.
 	Use multiple `code_edit` entries when different parts of the file should be replaced or added so the user has more control over what to apply.
 	If only a couple of lines need to change, show those as an independent `code_edit`
-	Include surrounding lines of code in `code_edit` and code_original_reference for context and to ensure correct replacement.
+	Include surrounding lines in `code_edit` and code_original_reference for context and to ensure correct replacement.
 	
-	Fix code formatting with whitespace and indentation that matches the original file.
+	Fix code and file formatting with whitespace and indentation that matches the original file.
 	
 	Don't use 'project.godot' as a reference.
 	Don't show empty references, make sure to use the file resource path.
@@ -214,14 +247,14 @@ func _get_system_prompt():
 	`resource_reference` should be included when that reference is required for the response.
 	If referencing a specific line, set code_original_reference to be the line number.
 	
-	Before making code changes, review other files and check the flow of information to determine the best way to achieve the results.
-	Keep changes simple when possible. Add comments above newly created functions, but do not make other changes unless specifically asked.
+	Before making edits, review other files and check the flow of information to determine the best way to achieve the results.
+	Keep changes simple when possible. Add comments above newly created functions or sections, but do not make other changes unless specifically asked.
 	
 	Check whitespace, spacing, and formatting against documents provided for context.
 	Check that all functions and syntax are appropriate for Godot "+engine_version+".
 	
 	Fix any whitespace or functions from old versions of Godot.
-	Verify that any code being replaced with `code_edit` has an accurate code_original_reference.
+	Verify that any content being replaced with `code_edit` has an accurate code_original_reference.
 	"
 	pass
 	

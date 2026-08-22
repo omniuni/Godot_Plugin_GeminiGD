@@ -3,6 +3,10 @@ class_name GeminiClientChecks
 
 var _current_file = ""
 var _current_content = ""
+var _explicit_files: Array = []
+
+func set_explicit_files(files: Array) -> void:
+	_explicit_files = files
 
 func prepare() -> void:
 	EditorInterface.save_all_scenes()
@@ -18,6 +22,10 @@ func prepare() -> void:
 	var summary = "=== GEMINI CLIENT CHECKS DEBUG SUMMARY ===\n"
 	summary += "Model URL: " + _url + "\n"
 	summary += "Active Script File: " + (_current_file if not _current_file.is_empty() else "None") + "\n"
+	if not _explicit_files.is_empty():
+		summary += "Explicitly Added Files:\n"
+		for f in _explicit_files:
+			summary += "  - " + str(f) + "\n"
 	summary += "=========================================="
 	_log(summary)
 	pass
@@ -70,4 +78,16 @@ func _get_history_array():
 		history.append({
 			"user": "Active Script Resource: " + _current_file + "\nContents:\n" + _current_content + "\n"
 		})
+	for file_path in _explicit_files:
+		if file_path is String and file_path != _current_file and FileAccess.file_exists(file_path):
+			var ext = file_path.get_extension().to_lower()
+			if ext in ["png", "jpg", "jpeg", "webp", "svg"]:
+				history.append({
+					"user": "Explicit Image Resource: " + file_path
+				})
+			else:
+				var content = FileAccess.get_file_as_string(file_path)
+				history.append({
+					"user": "Explicit File Resource: " + file_path + "\nContents:\n" + content + "\n"
+				})
 	return history
