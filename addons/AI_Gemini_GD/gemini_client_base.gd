@@ -7,7 +7,7 @@ signal request_failed(error_message: String)
 signal request_progress(progress: String)
 
 var _http_request: HTTPRequest
-var _url: String = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:streamGenerateContent"
+var _url: String = ""
 
 var _query: String = ""
 
@@ -22,9 +22,22 @@ func set_query(query: String):
 	_query = query
 	pass
 
+func _get_model_url() -> String:
+	var model = ProjectSettings.get_setting("gemini_gd/gemini_configuration/model", "gemini-3.5-flash-lite")
+	if not model is String or model.is_empty():
+		model = "gemini-3.5-flash-lite"
+	return "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":streamGenerateContent"
+
+func _get_thinking_level() -> String:
+	var level = ProjectSettings.get_setting("gemini_gd/gemini_configuration/thinking_level", "LOW")
+	if not level is String or level.is_empty():
+		level = "LOW"
+	return level
+
 func send():
 	prepare()
 	
+	_url = _get_model_url()
 	_log("[" + _get_client_name() + "] Sending request to: " + _url)
 	
 	var headers = [
@@ -59,7 +72,7 @@ func send():
 		"contents": contents_array,
 		"generationConfig": {
 			"thinkingConfig": {
-				"thinkingLevel": "MEDIUM",
+				"thinkingLevel": _get_thinking_level(),
 				"includeThoughts": true
 			},
 			"responseMimeType": "application/json",

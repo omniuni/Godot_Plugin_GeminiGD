@@ -26,6 +26,32 @@ func _enter_tree() -> void:
 		})
 	ProjectSettings.set_as_basic(setting_name, true)
 	
+	# Model Selection
+	var setting_model = "gemini_gd/gemini_configuration/model"
+	if not ProjectSettings.has_setting(setting_model):
+		ProjectSettings.set_setting(setting_model, "gemini-3.5-flash-lite")
+		ProjectSettings.set_initial_value(setting_model, "gemini-3.5-flash-lite")
+		ProjectSettings.add_property_info({
+			"name": setting_model,
+			"type": TYPE_STRING,
+			"hint": PROPERTY_HINT_ENUM,
+			"hint_string": "gemini-3.1-flash-lite,gemini-3.5-flash-lite,gemini-3.7-flash"
+		})
+	ProjectSettings.set_as_basic(setting_model, true)
+
+	# Thinking Level
+	var setting_thinking = "gemini_gd/gemini_configuration/thinking_level"
+	if not ProjectSettings.has_setting(setting_thinking):
+		ProjectSettings.set_setting(setting_thinking, "LOW")
+		ProjectSettings.set_initial_value(setting_thinking, "LOW")
+		ProjectSettings.add_property_info({
+			"name": setting_thinking,
+			"type": TYPE_STRING,
+			"hint": PROPERTY_HINT_ENUM,
+			"hint_string": "MINIMAL,LOW,MEDIUM,HIGH"
+		})
+	ProjectSettings.set_as_basic(setting_thinking, true)
+
 	# Max History
 	var setting_history = "gemini_gd/gemini_configuration/max_history"
 	if not ProjectSettings.has_setting(setting_history):

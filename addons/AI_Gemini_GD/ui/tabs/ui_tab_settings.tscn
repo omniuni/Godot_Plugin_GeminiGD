@@ -1,0 +1,91 @@
+[gd_scene format=3 uid="uid://chk3nxwgqkgsv"]
+
+[ext_resource type="Script" uid="uid://bl33n6k4vvmw7" path="res://addons/AI_Gemini_GD/ui/tabs/ui_tab_settings.gd" id="1_8fxwb"]
+
+[node name="UiTabSettings" type="Control" unique_id=1341452314]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_8fxwb")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1992751366]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer" unique_id=371650954]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 2
+
+[node name="LabelModel" type="Label" parent="MarginContainer/GridContainer" unique_id=15584143]
+layout_mode = 2
+text = "Model"
+
+[node name="OptionButtonModel" type="OptionButton" parent="MarginContainer/GridContainer" unique_id=1905983922]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 1
+item_count = 3
+popup/item_0/text = "Gemini 3.1 Flash Lite"
+popup/item_0/id = 0
+popup/item_1/text = "Gemini 3.5 Flash Lite"
+popup/item_1/id = 1
+popup/item_2/text = "Gemini 3.7 Flash"
+popup/item_2/id = 2
+
+[node name="LabelThinkingLevel" type="Label" parent="MarginContainer/GridContainer" unique_id=15584144]
+layout_mode = 2
+text = "Thinking Level"
+
+[node name="OptionButtonThinkingLevel" type="OptionButton" parent="MarginContainer/GridContainer" unique_id=1905983923]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 1
+item_count = 4
+popup/item_0/text = "Minimal"
+popup/item_0/id = 0
+popup/item_1/text = "Low"
+popup/item_1/id = 1
+popup/item_2/text = "Medium"
+popup/item_2/id = 2
+popup/item_3/text = "High"
+popup/item_3/id = 3
+
+[node name="LabelMaxHistory" type="Label" parent="MarginContainer/GridContainer" unique_id=15584141]
+layout_mode = 2
+text = "Max History"
+
+[node name="SpinBoxMaxHistory" type="SpinBox" parent="MarginContainer/GridContainer" unique_id=1905983920]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 30.0
+value = 10.0
+rounded = true
+
+[node name="LabelDynamicContext" type="Label" parent="MarginContainer/GridContainer" unique_id=15584142]
+layout_mode = 2
+text = "Max Dynamic Context"
+
+[node name="SpinBoxDynamicContext" type="SpinBox" parent="MarginContainer/GridContainer" unique_id=1905983921]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 20.0
+value = 5.0
+rounded = true
+
+[connection signal="item_selected" from="MarginContainer/GridContainer/OptionButtonModel" to="." method="_on_option_button_model_item_selected"]
+[connection signal="item_selected" from="MarginContainer/GridContainer/OptionButtonThinkingLevel" to="." method="_on_option_button_thinking_level_item_selected"]
+[connection signal="value_changed" from="MarginContainer/GridContainer/SpinBoxMaxHistory" to="." method="_on_spin_box_max_history_value_changed"]
+[connection signal="value_changed" from="MarginContainer/GridContainer/SpinBoxDynamicContext" to="." method="_on_spin_box_dynamic_context_value_changed"]

@@ -24,3 +24,6 @@ project.godot
 .gitattributes
 icon.svg
 icon.svg.import
+
+# JetBrains
+.idea

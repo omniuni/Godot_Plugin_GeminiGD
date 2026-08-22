@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bk1e6wlgtqhda" path="res://addons/AI_Gemini_GD/ui/main/ggd_main.gd" id="1_telba"]
 [ext_resource type="PackedScene" uid="uid://b7jrg1aqf4nxk" path="res://addons/AI_Gemini_GD/ui/tabs/ui_tab_chat.tscn" id="2_ro7w0"]
+[ext_resource type="PackedScene" uid="uid://chk3nxwgqkgsv" path="res://addons/AI_Gemini_GD/ui/tabs/ui_tab_settings.tscn" id="3_3lwvc"]
 
 [node name="GgdDockMain" type="Control" unique_id=1586183208]
 layout_mode = 3
@@ -31,6 +32,7 @@ tab_1/hidden = true
 tab_2/title = "Tuning"
 tab_2/disabled = true
 tab_2/hidden = true
+tab_3/title = "Settings"
 
 [node name="PanelChat" type="PanelContainer" parent="TabContainer" unique_id=525611810]
 layout_mode = 2
@@ -51,3 +53,12 @@ visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 metadata/_tab_name = "Tuning"
+
+[node name="PanelSettings" type="PanelContainer" parent="TabContainer" unique_id=54732486]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 3
+metadata/_tab_name = "Settings"
+
+[node name="UiTabSettings" parent="TabContainer/PanelSettings" unique_id=1341452314 instance=ExtResource("3_3lwvc")]
+layout_mode = 2
