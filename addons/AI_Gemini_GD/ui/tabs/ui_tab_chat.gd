@@ -21,11 +21,32 @@ var _selected_files: Array[String] = []
 var ui_preload_chat_element: PackedScene = preload("res://addons/AI_Gemini_GD/ui/ui_chat_element.tscn")
 
 func _ready() -> void:
+	if is_instance_valid(node_container_thought):
+		node_container_thought.visible = false
+	if is_instance_valid(node_thinking):
+		node_thinking.text = ""
 	node_button_send.disabled = true
 	_check_api_key()
 	ProjectSettings.settings_changed.connect(_check_api_key)
 	_update_file_list_ui()
+	_update_welcome_message()
 	pass
+
+
+func _update_welcome_message() -> void:
+	if not is_instance_valid(node_label_welcome):
+		return
+	var version = _get_plugin_version()
+	var version_display = ("Version " + version) if not version.is_empty() else "BETA RELEASE!"
+	node_label_welcome.text = "\nWelcome to Gemini GD —\nBringing Google Gemini to Godot\n\n" + version_display + "\nhttps://github.com/omniuni/Godot_Plugin_GeminiGD\n\nEnter a prompt to get started.\nThis works best if you have any scripts or scenes you want to reference open in the editor.\n"
+
+
+func _get_plugin_version() -> String:
+	var config = ConfigFile.new()
+	var err = config.load("res://addons/AI_Gemini_GD/plugin.cfg")
+	if err == OK:
+		return config.get_value("plugin", "version", "")
+	return ""
 
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
@@ -150,18 +171,27 @@ func _on_status_update(status_text: String, status_percent: int) -> void:
 	node_scroll.scroll_vertical = int(node_scroll.get_v_scroll_bar().max_value)
 	if status_percent == 100:
 		_current_prompt = ""
+		if is_instance_valid(node_container_thought):
+			node_container_thought.visible = false
+		if is_instance_valid(node_thinking):
+			node_thinking.text = ""
 		await get_tree().create_timer(0.75).timeout
 		node_label_status.text = "Ready"
 		node_progress.value = 0
 	pass
 	
 func _on_thought_update(thought: String) -> void:
-	if not thought.is_empty():
-		node_container_thought.visible = true
-		node_thinking.text = thought
+	var clean_thought = thought.strip_edges()
+	if not clean_thought.is_empty():
+		if is_instance_valid(node_container_thought):
+			node_container_thought.visible = true
+		if is_instance_valid(node_thinking):
+			node_thinking.text = clean_thought
 	else:
-		node_thinking.text = ""
-		node_container_thought.visible = false
+		if is_instance_valid(node_thinking):
+			node_thinking.text = ""
+		if is_instance_valid(node_container_thought):
+			node_container_thought.visible = false
 	pass
 
 func _on_button_clear_chat_pressed() -> void:

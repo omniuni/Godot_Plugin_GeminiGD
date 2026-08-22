@@ -42,17 +42,15 @@ size_flags_horizontal = 3
 size_flags_vertical = 10
 
 [node name="LabelWelcome" type="Label" parent="VBoxTabChat/MarginContainerConversation/ScrollContainer/VBoxConversation" unique_id=1040743686]
-custom_minimum_size = Vector2(300, 60)
+custom_minimum_size = Vector2(200, 60)
 custom_maximum_size = Vector2(-1, 400)
 layout_mode = 2
-size_flags_horizontal = 4
 size_flags_vertical = 8
 text = "
 Welcome to Gemini GD —
 Bringing Google Gemini to Godot
 
-BETA RELEASE!
-Updated: 2026/08/22
+Version 0.7
 https://github.com/omniuni/Godot_Plugin_GeminiGD
 
 Enter a prompt to get started.
@@ -98,6 +96,7 @@ layout_mode = 2
 theme_override_constants/separation = 4
 
 [node name="MarginContainerThought" type="MarginContainer" parent="VBoxTabChat" unique_id=656074315]
+visible = false
 layout_mode = 2
 
 [node name="Panel" type="Panel" parent="VBoxTabChat/MarginContainerThought" unique_id=1801653911]

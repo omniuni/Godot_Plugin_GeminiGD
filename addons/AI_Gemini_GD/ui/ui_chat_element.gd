@@ -45,7 +45,7 @@ func _on_g_checks_success(dict: Dictionary):
 	signal_thinking.emit("")
 	gemini_client_checks.queue_free()
 	_status_word = "Checking Context..."
-	_status_percent = 30
+	_status_percent = 15
 	_on_status_changed()
 	_send_query(dict)
 	pass
@@ -55,7 +55,7 @@ func _on_g_checks_progress(string: String):
 	if not has_updated_checks_once:
 		has_updated_checks_once = true
 		_status_word = "Considering Context..."
-		_status_percent = 20
+		_status_percent = 10
 		_on_status_changed()
 	signal_thinking.emit(string)
 	pass
@@ -63,7 +63,7 @@ func _on_g_checks_progress(string: String):
 func _send_checks():
 	signal_thinking.emit("")
 	_status_word = "Checking Requirements..."
-	_status_percent = 10
+	_status_percent = 5
 	_on_status_changed()
 	gemini_client_checks = GeminiClientChecks.new()
 	gemini_client_checks.request_completed.connect(_on_g_checks_success)
@@ -78,13 +78,14 @@ func _send_checks():
 
 func _send_query(checks: Dictionary):
 	_status_word = "Preparing Query..."
-	_status_percent = 45
+	_status_percent = 20
 	_on_status_changed()
 	signal_thinking.emit("")
 	gemini_client_query = GeminiClientQuery.new()
 	gemini_client_query.request_completed.connect(_on_g_query_success)
 	gemini_client_query.request_failed.connect(_on_g_query_error)
 	gemini_client_query.request_progress.connect(_on_g_query_progress)
+	gemini_client_query.signal_tool_used.connect(_on_tool_used)
 	add_child(gemini_client_query)
 	gemini_client_query.set_explicit_files(_selected_files)
 	gemini_client_query.configure(
@@ -103,6 +104,13 @@ func _send_query(checks: Dictionary):
 	gemini_client_query.send()
 	pass
 
+func _on_tool_used(tool_name: String, _cost: int, total_used_cost: int, max_allowance: int) -> void:
+	_status_word = "Tool: " + tool_name + "..."
+	var tool_ratio: float = clampf(float(total_used_cost) / float(max(1, max_allowance)), 0.0, 1.0)
+	_status_percent = int(20.0 + (60.0 * tool_ratio))
+	_on_status_changed()
+	pass
+
 func _on_g_query_error(string: String):
 	signal_thinking.emit("")
 	pass
@@ -110,8 +118,8 @@ func _on_g_query_error(string: String):
 func _on_g_query_success(dict: Dictionary):
 	_status_word = "Done"
 	_status_percent = 100
-	node_foldable_container.title = dict['response_title']
-	node_ui_response.set_responses(dict['response_content'])
+	node_foldable_container.title = dict.get('response_title', 'Response')
+	node_ui_response.set_responses(dict.get('response_content', []))
 	_on_status_changed()
 	signal_thinking.emit("")
 	pass
@@ -120,8 +128,8 @@ var has_updated_query_once: bool = false
 func _on_g_query_progress(string: String):
 	if not has_updated_query_once:
 		has_updated_query_once = true
-		_status_word = "Analyzing Query..."
-		_status_percent = 75
+		_status_word = "Generating Response..."
+		_status_percent = max(_status_percent, 85)
 		_on_status_changed()
 	signal_thinking.emit(string)
 	pass

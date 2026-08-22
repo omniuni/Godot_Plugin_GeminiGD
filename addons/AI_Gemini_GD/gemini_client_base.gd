@@ -115,7 +115,7 @@ func send():
 	_log("[" + _get_client_name() + "] Connected to host successfully.")
 	
 	var json_body = JSON.stringify(payload)
-	_log("[" + _get_client_name() + "] Sending payload...")
+	_log_request_payload(json_body)
 	var req_err = client.request(HTTPClient.METHOD_POST, path, headers, json_body)
 	if req_err != OK:
 		_fail_request("Failed to send HTTP request: " + str(req_err))
@@ -135,10 +135,8 @@ func send():
 		
 	var response_code = client.get_response_code()
 	_log("[" + _get_client_name() + "] Response received. Code: " + str(response_code))
-	if response_code != 200:
-		_fail_request("API request failed. HTTP Code: " + str(response_code))
-		return null
-		
+	
+	var raw_response_body = ""
 	var sse_buffer = ""
 	var context = {
 		"full_text": "",
@@ -168,7 +166,7 @@ func send():
 								var stripped_ft = context["full_text"].strip_edges()
 								if stripped_ft.begins_with("{") and stripped_ft.ends_with("}"):
 									var complete_response: Dictionary = JSON.parse_string(stripped_ft)
-									_log("[" + _get_client_name() + "] REQUEST COMPLETED: " + str(complete_response))
+									_log("[" + _get_client_name() + "] Request completed successfully.")
 									request_completed.emit(complete_response)
 	
 	while client.get_status() == HTTPClient.STATUS_BODY:
@@ -176,7 +174,9 @@ func send():
 		if client.has_response():
 			var chunk = client.read_response_body_chunk()
 			if chunk.size() > 0:
-				sse_buffer += chunk.get_string_from_utf8()
+				var chunk_str = chunk.get_string_from_utf8()
+				raw_response_body += chunk_str
+				sse_buffer += chunk_str
 				var lines = sse_buffer.split("\n")
 				sse_buffer = lines[-1]
 				lines.remove_at(lines.size() - 1)
@@ -189,6 +189,11 @@ func send():
 							if typeof(json_chunk) == TYPE_DICTIONARY:
 								process_chunk.call(json_chunk)
 		await get_tree().process_frame
+
+	_log_response_payload(raw_response_body, response_code)
+	if response_code != 200:
+		_fail_request("API request failed. HTTP Code: " + str(response_code) + "\n" + raw_response_body)
+		return null
 
 	pass
 	
@@ -209,8 +214,26 @@ func _get_client_name() -> String:
 	return "GeminiClient"
 
 func _log(message: String) -> void:
-	if ProjectSettings.has_setting("gemini_gd/gemini_configuration/enable_debug") and ProjectSettings.get_setting("gemini_gd/gemini_configuration/enable_debug"):
+	if ProjectSettings.get_setting("gemini_gd/debugging/behavior_debugging", false):
 		print(message)
+
+func _log_request_payload(payload_str: String) -> void:
+	var req_debug = ProjectSettings.get_setting("gemini_gd/debugging/request_debugging", false)
+	var behav_debug = ProjectSettings.get_setting("gemini_gd/debugging/behavior_debugging", false)
+	var byte_count = payload_str.to_utf8_buffer().size()
+	if req_debug:
+		print("[" + _get_client_name() + "] Request payload (" + str(byte_count) + " bytes):\n" + payload_str)
+	elif behav_debug:
+		print("[" + _get_client_name() + "] Request payload sent (" + str(byte_count) + " bytes)")
+
+func _log_response_payload(response_str: String, response_code: int = 200) -> void:
+	var req_debug = ProjectSettings.get_setting("gemini_gd/debugging/request_debugging", false)
+	var behav_debug = ProjectSettings.get_setting("gemini_gd/debugging/behavior_debugging", false)
+	var byte_count = response_str.to_utf8_buffer().size()
+	if req_debug:
+		print("[" + _get_client_name() + "] Response received (Code: " + str(response_code) + ", " + str(byte_count) + " bytes):\n" + response_str)
+	elif behav_debug:
+		print("[" + _get_client_name() + "] Response received (Code: " + str(response_code) + ", " + str(byte_count) + " bytes)")
 
 func _fail_request(error_message: String) -> void:
 	_log("[" + _get_client_name() + "] ERROR: " + error_message)

@@ -23,17 +23,29 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="GridContainer" type="GridContainer" parent="MarginContainer" unique_id=371650954]
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer" unique_id=2147000001]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer" unique_id=2147000002]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/ScrollContainer/VBoxContainer" unique_id=371650954]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 8
 columns = 2
 
-[node name="LabelModel" type="Label" parent="MarginContainer/GridContainer" unique_id=15584143]
+[node name="LabelModel" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/GridContainer" unique_id=15584143]
 layout_mode = 2
 text = "Model"
 
-[node name="OptionButtonModel" type="OptionButton" parent="MarginContainer/GridContainer" unique_id=1905983922]
+[node name="OptionButtonModel" type="OptionButton" parent="MarginContainer/ScrollContainer/VBoxContainer/GridContainer" unique_id=1905983922]
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 1
@@ -45,11 +57,11 @@ popup/item_1/id = 1
 popup/item_2/text = "Gemini 3.7 Flash"
 popup/item_2/id = 2
 
-[node name="LabelThinkingLevel" type="Label" parent="MarginContainer/GridContainer" unique_id=15584144]
+[node name="LabelThinkingLevel" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/GridContainer" unique_id=15584144]
 layout_mode = 2
 text = "Thinking Level"
 
-[node name="OptionButtonThinkingLevel" type="OptionButton" parent="MarginContainer/GridContainer" unique_id=1905983923]
+[node name="OptionButtonThinkingLevel" type="OptionButton" parent="MarginContainer/ScrollContainer/VBoxContainer/GridContainer" unique_id=1905983923]
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 1
@@ -63,29 +75,89 @@ popup/item_2/id = 2
 popup/item_3/text = "High"
 popup/item_3/id = 3
 
-[node name="LabelMaxHistory" type="Label" parent="MarginContainer/GridContainer" unique_id=15584141]
+[node name="LabelMaxHistory" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/GridContainer" unique_id=15584141]
 layout_mode = 2
 text = "Max History"
 
-[node name="SpinBoxMaxHistory" type="SpinBox" parent="MarginContainer/GridContainer" unique_id=1905983920]
+[node name="SpinBoxMaxHistory" type="SpinBox" parent="MarginContainer/ScrollContainer/VBoxContainer/GridContainer" unique_id=1905983920]
 layout_mode = 2
 size_flags_horizontal = 3
 max_value = 30.0
 value = 10.0
 rounded = true
 
-[node name="LabelDynamicContext" type="Label" parent="MarginContainer/GridContainer" unique_id=15584142]
+[node name="LabelDynamicContext" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/GridContainer" unique_id=15584142]
 layout_mode = 2
 text = "Max Dynamic Context"
 
-[node name="SpinBoxDynamicContext" type="SpinBox" parent="MarginContainer/GridContainer" unique_id=1905983921]
+[node name="SpinBoxDynamicContext" type="SpinBox" parent="MarginContainer/ScrollContainer/VBoxContainer/GridContainer" unique_id=1905983921]
 layout_mode = 2
 size_flags_horizontal = 3
 max_value = 20.0
 value = 5.0
 rounded = true
 
-[connection signal="item_selected" from="MarginContainer/GridContainer/OptionButtonModel" to="." method="_on_option_button_model_item_selected"]
-[connection signal="item_selected" from="MarginContainer/GridContainer/OptionButtonThinkingLevel" to="." method="_on_option_button_thinking_level_item_selected"]
-[connection signal="value_changed" from="MarginContainer/GridContainer/SpinBoxMaxHistory" to="." method="_on_spin_box_max_history_value_changed"]
-[connection signal="value_changed" from="MarginContainer/GridContainer/SpinBoxDynamicContext" to="." method="_on_spin_box_dynamic_context_value_changed"]
+[node name="FoldableContainerTools" type="FoldableContainer" parent="MarginContainer/ScrollContainer/VBoxContainer" unique_id=2147000003]
+layout_mode = 2
+size_flags_horizontal = 3
+title = "Tools"
+
+[node name="MarginContainerTools" type="MarginContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools" unique_id=2147000004]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="VBoxContainerTools" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools" unique_id=2147000010]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="GridContainerTools" type="GridContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools/VBoxContainerTools" unique_id=2147000005]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 2
+
+[node name="LabelAllowTools" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools/VBoxContainerTools/GridContainerTools" unique_id=2147000006]
+layout_mode = 2
+text = "Allow Tool Use"
+
+[node name="CheckBoxAllowTools" type="CheckBox" parent="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools/VBoxContainerTools/GridContainerTools" unique_id=2147000007]
+layout_mode = 2
+button_pressed = true
+
+[node name="LabelToolAllowance" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools/VBoxContainerTools/GridContainerTools" unique_id=2147000008]
+layout_mode = 2
+text = "Tool Use Allowance"
+
+[node name="SpinBoxToolAllowance" type="SpinBox" parent="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools/VBoxContainerTools/GridContainerTools" unique_id=2147000009]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+max_value = 100.0
+value = 30.0
+rounded = true
+
+[node name="LabelToolsActive" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools/VBoxContainerTools/GridContainerTools" unique_id=2147000011]
+layout_mode = 2
+text = "Active Tools"
+
+[node name="LabelToolsActiveValue" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools/VBoxContainerTools/GridContainerTools" unique_id=2147000012]
+layout_mode = 2
+text = "1 of 1 enabled"
+
+[node name="ButtonOpenSettings" type="Button" parent="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools/VBoxContainerTools" unique_id=2147000013]
+layout_mode = 2
+text = "Configure Tools in Project Settings..."
+
+[connection signal="item_selected" from="MarginContainer/ScrollContainer/VBoxContainer/GridContainer/OptionButtonModel" to="." method="_on_option_button_model_item_selected"]
+[connection signal="item_selected" from="MarginContainer/ScrollContainer/VBoxContainer/GridContainer/OptionButtonThinkingLevel" to="." method="_on_option_button_thinking_level_item_selected"]
+[connection signal="value_changed" from="MarginContainer/ScrollContainer/VBoxContainer/GridContainer/SpinBoxMaxHistory" to="." method="_on_spin_box_max_history_value_changed"]
+[connection signal="value_changed" from="MarginContainer/ScrollContainer/VBoxContainer/GridContainer/SpinBoxDynamicContext" to="." method="_on_spin_box_dynamic_context_value_changed"]
+[connection signal="toggled" from="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools/VBoxContainerTools/GridContainerTools/CheckBoxAllowTools" to="." method="_on_check_box_allow_tools_toggled"]
+[connection signal="value_changed" from="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools/VBoxContainerTools/GridContainerTools/SpinBoxToolAllowance" to="." method="_on_spin_box_tool_allowance_value_changed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/VBoxContainer/FoldableContainerTools/MarginContainerTools/VBoxContainerTools/ButtonOpenSettings" to="." method="_on_button_open_settings_pressed"]

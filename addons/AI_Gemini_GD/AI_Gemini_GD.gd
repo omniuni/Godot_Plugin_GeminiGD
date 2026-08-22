@@ -13,6 +13,7 @@ func _disable_plugin() -> void:
 	pass
 
 func _enter_tree() -> void:
+	_cleanup_settings()
 	
 	# API Key
 	var setting_name = "gemini_gd/gemini_configuration/api_key"
@@ -65,7 +66,7 @@ func _enter_tree() -> void:
 		})
 	ProjectSettings.set_as_basic(setting_history, true)
 
-	# Max Dynamic Context (Not used yet, indicates the maximum additional unopened files to include)
+	# Max Dynamic Context
 	var setting_dynamic_context = "gemini_gd/gemini_configuration/max_dynamic_context"
 	if not ProjectSettings.has_setting(setting_dynamic_context):
 		ProjectSettings.set_setting(setting_dynamic_context, 5)
@@ -78,16 +79,95 @@ func _enter_tree() -> void:
 		})
 	ProjectSettings.set_as_basic(setting_dynamic_context, true)
 	
-	# Debug Mode
-	var setting_debug = "gemini_gd/gemini_configuration/enable_debug"
-	if not ProjectSettings.has_setting(setting_debug):
-		ProjectSettings.set_setting(setting_debug, false)
-		ProjectSettings.set_initial_value(setting_debug, false)
+	# Debugging - Behavior Debugging
+	var setting_behavior_debug = "gemini_gd/debugging/behavior_debugging"
+	if not ProjectSettings.has_setting(setting_behavior_debug):
+		ProjectSettings.set_setting(setting_behavior_debug, false)
+		ProjectSettings.set_initial_value(setting_behavior_debug, false)
 		ProjectSettings.add_property_info({
-			"name": setting_debug,
+			"name": setting_behavior_debug,
 			"type": TYPE_BOOL
 		})
-	ProjectSettings.set_as_basic(setting_debug, false)
+	ProjectSettings.set_as_basic(setting_behavior_debug, false)
+
+	# Debugging - Request Debugging
+	var setting_request_debug = "gemini_gd/debugging/request_debugging"
+	if not ProjectSettings.has_setting(setting_request_debug):
+		ProjectSettings.set_setting(setting_request_debug, false)
+		ProjectSettings.set_initial_value(setting_request_debug, false)
+		ProjectSettings.add_property_info({
+			"name": setting_request_debug,
+			"type": TYPE_BOOL
+		})
+	ProjectSettings.set_as_basic(setting_request_debug, false)
+
+	# Advanced - Treat Addons as Project Files
+	var setting_treat_addons = "gemini_gd/advanced/treat_addons_as_project"
+	if not ProjectSettings.has_setting(setting_treat_addons):
+		ProjectSettings.set_setting(setting_treat_addons, false)
+		ProjectSettings.set_initial_value(setting_treat_addons, false)
+		ProjectSettings.add_property_info({
+			"name": setting_treat_addons,
+			"type": TYPE_BOOL
+		})
+	ProjectSettings.set_as_basic(setting_treat_addons, false)
+
+	# Tools - Allow Tool Use
+	var setting_allow_tools = "gemini_gd/tools/allow_tool_use"
+	if not ProjectSettings.has_setting(setting_allow_tools):
+		ProjectSettings.set_setting(setting_allow_tools, true)
+		ProjectSettings.set_initial_value(setting_allow_tools, true)
+		ProjectSettings.add_property_info({
+			"name": setting_allow_tools,
+			"type": TYPE_BOOL
+		})
+	ProjectSettings.set_as_basic(setting_allow_tools, true)
+
+	# Tools - Tool Use Allowance
+	var setting_tool_allowance = "gemini_gd/tools/tool_use_allowance"
+	if not ProjectSettings.has_setting(setting_tool_allowance):
+		ProjectSettings.set_setting(setting_tool_allowance, 30)
+		ProjectSettings.set_initial_value(setting_tool_allowance, 30)
+		ProjectSettings.add_property_info({
+			"name": setting_tool_allowance,
+			"type": TYPE_INT,
+			"hint": PROPERTY_HINT_RANGE,
+			"hint_string": "1,100"
+		})
+	ProjectSettings.set_as_basic(setting_tool_allowance, true)
+
+	# Tools - Project Structure Tool Toggle
+	var setting_tool_proj_struct = "gemini_gd/tools/enable_tool_project_structure"
+	if not ProjectSettings.has_setting(setting_tool_proj_struct):
+		ProjectSettings.set_setting(setting_tool_proj_struct, true)
+		ProjectSettings.set_initial_value(setting_tool_proj_struct, true)
+		ProjectSettings.add_property_info({
+			"name": setting_tool_proj_struct,
+			"type": TYPE_BOOL
+		})
+	ProjectSettings.set_as_basic(setting_tool_proj_struct, true)
+
+	# Tools - Syntax & Lint Checking Tool Toggle
+	var setting_tool_check_syntax = "gemini_gd/tools/enable_tool_check_syntax"
+	if not ProjectSettings.has_setting(setting_tool_check_syntax):
+		ProjectSettings.set_setting(setting_tool_check_syntax, true)
+		ProjectSettings.set_initial_value(setting_tool_check_syntax, true)
+		ProjectSettings.add_property_info({
+			"name": setting_tool_check_syntax,
+			"type": TYPE_BOOL
+		})
+	ProjectSettings.set_as_basic(setting_tool_check_syntax, true)
+
+	# Tools - Addons Directory Tool Toggle
+	var setting_tool_addons_dir = "gemini_gd/tools/enable_tool_addons_directory"
+	if not ProjectSettings.has_setting(setting_tool_addons_dir):
+		ProjectSettings.set_setting(setting_tool_addons_dir, true)
+		ProjectSettings.set_initial_value(setting_tool_addons_dir, true)
+		ProjectSettings.add_property_info({
+			"name": setting_tool_addons_dir,
+			"type": TYPE_BOOL
+		})
+	ProjectSettings.set_as_basic(setting_tool_addons_dir, true)
 	
 	var dock_scene = preload("res://addons/AI_Gemini_GD/ui/main/GGD_Dock_Main.tscn").instantiate()
 	scn_geminigd_dock = EditorDock.new()
@@ -101,8 +181,32 @@ func _enter_tree() -> void:
 	add_context_menu_plugin(EditorContextMenuPlugin.CONTEXT_SLOT_SCRIPT_EDITOR_CODE, context_menu_plugin)
 	pass
 
+func _cleanup_settings() -> void:
+	var active_settings = [
+		"gemini_gd/gemini_configuration/api_key",
+		"gemini_gd/gemini_configuration/model",
+		"gemini_gd/gemini_configuration/thinking_level",
+		"gemini_gd/gemini_configuration/max_history",
+		"gemini_gd/gemini_configuration/max_dynamic_context",
+		"gemini_gd/debugging/behavior_debugging",
+		"gemini_gd/debugging/request_debugging",
+		"gemini_gd/advanced/treat_addons_as_project",
+		"gemini_gd/tools/allow_tool_use",
+		"gemini_gd/tools/tool_use_allowance",
+		"gemini_gd/tools/enable_tool_project_structure",
+		"gemini_gd/tools/enable_tool_check_syntax",
+		"gemini_gd/tools/enable_tool_addons_directory"
+	]
+	var changed = false
+	for prop in ProjectSettings.get_property_list():
+		var prop_name: String = prop["name"]
+		if prop_name.begins_with("gemini_gd/") and not prop_name in active_settings:
+			ProjectSettings.clear(prop_name)
+			changed = true
+	if changed:
+		ProjectSettings.save()
+
 func _explain_pressed(script: Script) -> void:
-	print("Should Explain: "+script.resource_path)
 	if script:
 		var dock = scn_geminigd_dock.get_child(0)
 		var tab_chat: UiTabChat = dock.get_node("TabContainer/PanelChat/UiTabChat")
