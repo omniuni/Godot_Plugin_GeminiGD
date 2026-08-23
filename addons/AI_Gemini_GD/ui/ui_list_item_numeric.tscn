@@ -1,14 +1,16 @@
-[gd_scene format=3 uid="uid://ba82utynkvv3c"]
+[gd_scene format=3]
 
-[ext_resource type="Script" uid="uid://bcmxri0vvqo4s" path="res://addons/AI_Gemini_GD/ui/ui_text.gd" id="1_oppuu"]
+[ext_resource type="Script" path="res://addons/AI_Gemini_GD/ui/ui_list_item_numeric.gd" id="1_numeric"]
 
-[node name="UiText" type="MarginContainer" unique_id=1971476957]
+[node name="UiListItemNumeric" type="MarginContainer" unique_id=1971476957]
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 23.0
 grow_horizontal = 2
 size_flags_horizontal = 3
-script = ExtResource("1_oppuu")
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_bottom = 2
+script = ExtResource("1_numeric")
 
 [node name="Label" type="RichTextLabel" parent="." unique_id=820936938]
 custom_minimum_size = Vector2(0, 30)
@@ -18,13 +20,14 @@ size_flags_horizontal = 3
 mouse_filter = 1
 theme_override_constants/line_separation = 2
 bbcode_enabled = true
-text = "Text"
+text = "List item"
 fit_content = true
 scroll_active = false
 autowrap_mode = 2
 vertical_alignment = 1
 
 [node name="ButtonCopy" type="Button" parent="." unique_id=1850833851]
+visible = false
 custom_maximum_size = Vector2(-1, 20)
 clip_contents = true
 layout_mode = 2

@@ -13,5 +13,5 @@ func set_request(request: String):
 func get_request() -> String:
 	for child in container.get_children():
 		if child is UiHeader:
-			return child.label.text
+			return child.get_value()
 	return ""

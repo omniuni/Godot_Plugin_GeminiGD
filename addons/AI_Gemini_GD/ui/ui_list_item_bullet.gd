@@ -1,6 +1,6 @@
 @tool
 extends MarginContainer
-class_name UiText
+class_name UiListItemBullet
 
 @onready var label: RichTextLabel = $Label
 @onready var btn_copy: Button = $ButtonCopy
@@ -17,7 +17,7 @@ func _ready() -> void:
 		label.fit_content = true
 		label.scroll_active = false
 		if not _value.is_empty():
-			label.text = _value
+			set_value(_value)
 
 func _on_mouse_entered() -> void:
 	btn_copy.show()
@@ -31,7 +31,11 @@ func get_value() -> String:
 func set_value(text_content: String) -> void:
 	_value = text_content
 	if label:
-		label.text = text_content
+		var stripped = text_content.strip_edges()
+		if not stripped.begins_with("•") and not stripped.begins_with("- ") and not stripped.begins_with("* ") and not stripped.begins_with("[b]•"):
+			label.text = "• " + text_content
+		else:
+			label.text = text_content
 
 func _on_copy_pressed() -> void:
 	DisplayServer.clipboard_set(get_value())

@@ -488,10 +488,15 @@ func _get_system_prompt():
 	Respond to the prompt returning content as a JSON object with keys:
 	- response_title: string
 	- response_content: array of objects
-	each object having a 'response_content_type' and 'response_content_value'.
+	each object having 'response_content_type', 'response_content_value', and for numeric list items, 'list_item_index'.
 	This is the only way to provide formatting.
 	Do not use Markdown, HTML, or any other formatting outside the JSON structure.
 	The available types are: header, text, list_item_bullet, list_item_numeric, code, code_edit, resource_reference
+	
+	`header`, `text`, `list_item_bullet`, and `list_item_numeric` support BBCode formatting. Use ONLY BBCode formatting for headers, text, and list items.
+	Use headers to separate sections of a reply, and text for more general content and information.
+	IMPORTANT: BBCode does NOT support lists. Always use list_item_bullet or list_item_numeric to make lists.
+	For `list_item_numeric`, always specify `list_item_index` as the 1-based integer index (1, 2, 3...). Do not include the number prefix in `response_content_value`.
 	
 	If a file is referenced in the reply, include a reference for it.
 	
@@ -524,6 +529,7 @@ func _get_system_prompt():
 	
 	Check whitespace, spacing, and formatting against documents provided for context.
 	Check that all functions and syntax are appropriate for Godot "+engine_version+".
+	Check that `header`, `text`, `list_item_bullet`, and `list_item_numeric` are formatted with BBCode do not contain HTML or markdown, and if they do, convert it to BBCode.
 	
 	Fix any whitespace or functions from old versions of Godot.
 	Verify that any content being replaced with `code_edit` has an accurate code_original_reference.
@@ -546,7 +552,8 @@ func _get_schema():
 						},
 						"response_content_value": {"type": "string"},
 						"code_original_file": {"type": "string"},
-						"code_original_reference": {"type": "string"}
+						"code_original_reference": {"type": "string"},
+						"list_item_index": {"type": "integer"}
 					},
 					"required": ["response_content_type", "response_content_value"]
 				}

@@ -3,24 +3,32 @@
 [ext_resource type="Script" uid="uid://d3cwylvfrjukr" path="res://addons/AI_Gemini_GD/ui/ui_header.gd" id="1_ha3jg"]
 
 [node name="UiHeader" type="MarginContainer" unique_id=1971476957]
-custom_minimum_size = Vector2(0, 36)
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 23.0
 grow_horizontal = 2
-size_flags_vertical = 3
-theme_override_constants/margin_bottom = 6
+size_flags_horizontal = 3
 script = ExtResource("1_ha3jg")
 
-[node name="Label" type="Label" parent="." unique_id=1284344799]
-custom_minimum_size = Vector2(0, 20)
+[node name="Label" type="RichTextLabel" parent="." unique_id=2022704349]
 layout_mode = 2
-theme_type_variation = &"HeaderSmall"
+size_flags_horizontal = 3
+mouse_filter = 1
+theme_override_constants/line_separation = 3
+theme_override_font_sizes/normal_font_size = 18
+theme_override_font_sizes/bold_font_size = 18
+theme_override_font_sizes/bold_italics_font_size = 18
+theme_override_font_sizes/italics_font_size = 18
+theme_override_font_sizes/mono_font_size = 18
+bbcode_enabled = true
 text = "Header"
-vertical_alignment = 1
+fit_content = true
+scroll_active = false
 autowrap_mode = 2
+vertical_alignment = 1
 
 [node name="ButtonCopy" type="Button" parent="." unique_id=829387011]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 0
