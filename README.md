@@ -8,6 +8,10 @@ and direct code application within the Godot 4 editor.
 
 ## Features
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/omniuni/Godot_Plugin_GeminiGD/refs/heads/main/resources/gemini_gd_03_code.png" alt="Gemini GD Code Assistant" />
+</p>
+
 - **Context-Aware Chat**: Automatically includes active scripts, open scenes, and related project files based on your queries.
 - **Autonomous Tool Use**: Enables Gemini to dynamically inspect project structure, check syntax and linting, and reference installed addons during multi-turn reasoning.
 - **Editor Integration**: Docks seamlessly into the Godot editor layout and adds context menu items to scripts for instant explanations of entire scripts or specific functions.
@@ -27,6 +31,10 @@ and direct code application within the Godot 4 editor.
 ---
 
 ## Configuration
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/omniuni/Godot_Plugin_GeminiGD/refs/heads/main/resources/gemini_gd_02_settings.png" alt="Gemini GD Settings" />
+</p>
 
 Before using the assistant, you must configure your Google Gemini API key:
 
