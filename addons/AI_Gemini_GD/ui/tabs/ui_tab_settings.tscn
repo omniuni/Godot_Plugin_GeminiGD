@@ -49,13 +49,15 @@ text = "Model"
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 1
-item_count = 3
+item_count = 4
 popup/item_0/text = "Gemini 3.1 Flash Lite"
 popup/item_0/id = 0
 popup/item_1/text = "Gemini 3.5 Flash Lite"
 popup/item_1/id = 1
-popup/item_2/text = "Gemini 3.7 Flash"
+popup/item_2/text = "Gemini 3.6 Flash"
 popup/item_2/id = 2
+popup/item_3/text = "Gemini 3.8 Flash"
+popup/item_3/id = 3
 
 [node name="LabelThinkingLevel" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer/GridContainer" unique_id=15584144]
 layout_mode = 2

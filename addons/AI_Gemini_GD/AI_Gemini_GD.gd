@@ -36,7 +36,7 @@ func _enter_tree() -> void:
 			"name": setting_model,
 			"type": TYPE_STRING,
 			"hint": PROPERTY_HINT_ENUM,
-			"hint_string": "gemini-3.1-flash-lite,gemini-3.5-flash-lite,gemini-3.7-flash"
+			"hint_string": "gemini-3.1-flash-lite,gemini-3.5-flash-lite,gemini-3.6-flash,gemini-3.8-flash"
 		})
 	ProjectSettings.set_as_basic(setting_model, true)
 

@@ -14,7 +14,8 @@ const SETTING_TOOL_ALLOWANCE = "gemini_gd/tools/tool_use_allowance"
 const MODELS = [
 	{"id": "gemini-3.1-flash-lite", "label": "Gemini 3.1 Flash Lite"},
 	{"id": "gemini-3.5-flash-lite", "label": "Gemini 3.5 Flash Lite"},
-	{"id": "gemini-3.7-flash", "label": "Gemini 3.7 Flash"}
+	{"id": "gemini-3.6-flash", "label": "Gemini 3.6 Flash"},
+	{"id": "gemini-3.8-flash", "label": "Gemini 3.8 Flash"}
 ]
 
 const THINKING_LEVELS = [
